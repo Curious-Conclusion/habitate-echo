@@ -163,6 +163,8 @@ func _on_player_died() -> void:
 	await dialogue_box.dialogue_finished
 	player.global_position = Vector2(159, 361)
 	player.restore_health()
+	if suspicious_device.scan_done and not MissionManager.is_complete(&"vent_signal"):
+		_spawn_nanite_swarm()
 
 # -- Win condition --
 
