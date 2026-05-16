@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://cbnlybvhbndct"]
+
+[ext_resource type="Script" uid="uid://dtq3k2oot6wfy" path="res://scripts/resleeving_pod.gd" id="1_k6kfr"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_xrn5q"]
+radius = 40.0
+
+[node name="ResleevingPod" type="Area2D" unique_id=1777523461]
+monitorable = false
+script = ExtResource("1_k6kfr")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=503818752]
+shape = SubResource("CircleShape2D_xrn5q")
+
+[node name="Visual" type="ColorRect" parent="." unique_id=286466028]
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+color = Color(0.1, 0.9, 0.9, 0.8)
+
+[node name="PromptLabel" type="Label" parent="." unique_id=1898560804]
+offset_left = -40.0
+offset_top = -32.0
+offset_right = 52.0
+offset_bottom = -9.0
+text = "[E] Resleeve"

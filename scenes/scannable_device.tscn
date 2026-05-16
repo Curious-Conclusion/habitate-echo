@@ -1,0 +1,36 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/scannable_device.gd" id="1_scan"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_scan"]
+radius = 40.0
+
+[node name="ScannableDevice" type="Area2D"]
+monitorable = false
+script = ExtResource("1_scan")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_scan")
+
+[node name="Visual" type="ColorRect" parent="."]
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+color = Color(0.6, 0.1, 0.6, 1)
+
+[node name="PromptLabel" type="Label" parent="."]
+offset_left = -50.0
+offset_top = -30.0
+offset_right = 55.0
+offset_bottom = -7.0
+text = "[Hold E] Scan Device"
+horizontal_alignment = 1
+
+[node name="ScanProgressBar" type="ProgressBar" parent="."]
+offset_left = -30.0
+offset_top = 20.0
+offset_right = 30.0
+offset_bottom = 28.0
+max_value = 3.0
+show_percentage = false

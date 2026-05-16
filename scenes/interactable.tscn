@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://b0kd1kpl7l2sq"]
+
+[ext_resource type="Script" path="res://scripts/interactable.gd" id="1_56v82"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ij5l6"]
+radius = 40.0
+
+[node name="Interactable" type="Area2D" unique_id=1101292458]
+monitorable = false
+script = ExtResource("1_56v82")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1747708438]
+shape = SubResource("CircleShape2D_ij5l6")
+
+[node name="Visual" type="ColorRect" parent="." unique_id=245076052]
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+
+[node name="PromptLabel" type="Label" parent="." unique_id=736199697]
+offset_left = -40.0
+offset_top = -30.0
+offset_right = 45.0
+offset_bottom = -7.0
+text = "[E] Interact"
+horizontal_alignment = 1

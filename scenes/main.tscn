@@ -1,0 +1,198 @@
+[gd_scene format=3 uid="uid://cekkdp4ne1dbh"]
+
+[ext_resource type="Script" uid="uid://epu60malq7yr" path="res://scripts/main.gd" id="1_jyhfs"]
+[ext_resource type="PackedScene" uid="uid://bu0dbnxtsapat" path="res://scenes/player.tscn" id="1_o5qli"]
+[ext_resource type="Script" uid="uid://dqtpu2j3c1dtb" path="res://scripts/morph_select_ui.gd" id="2_tbgi4"]
+[ext_resource type="PackedScene" uid="uid://cbnlybvhbndct" path="res://scenes/resleeving_pod.tscn" id="4_tefeu"]
+[ext_resource type="Script" uid="uid://d0uu8mquc3pt6" path="res://scripts/resleeve_transition.gd" id="5_tbgi4"]
+[ext_resource type="PackedScene" uid="uid://ijn40a24ls27" path="res://scenes/dialogue_box.tscn" id="6_o6xl0"]
+[ext_resource type="PackedScene" uid="uid://b0kd1kpl7l2sq" path="res://scenes/interactable.tscn" id="7_tipki"]
+[ext_resource type="Script" path="res://scripts/hp_bar.gd" id="8_hpbar"]
+[ext_resource type="PackedScene" path="res://scenes/scannable_device.tscn" id="9_sdevice"]
+[ext_resource type="Script" path="res://scripts/moxie_bar.gd" id="10_moxie"]
+[ext_resource type="PackedScene" path="res://scenes/end_screen.tscn" id="11_endscr"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sgp6g"]
+size = Vector2(648, 8)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_o5qli"]
+size = Vector2(648, 8)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0wfyh"]
+size = Vector2(8, 488)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sugp2"]
+size = Vector2(8, 488)
+
+[node name="Main" type="Node2D" unique_id=1403852307]
+script = ExtResource("1_jyhfs")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1713854878]
+position = Vector2(320, 240)
+
+[node name="Room" type="Node2D" parent="." unique_id=1250272977]
+
+[node name="Lounge" type="ColorRect" parent="Room" unique_id=804188890]
+offset_right = 318.0
+offset_bottom = 238.0
+color = Color(0.2, 0.35, 0.2, 1)
+
+[node name="ServerAlcove" type="ColorRect" parent="Room" unique_id=91872381]
+offset_left = 322.0
+offset_right = 640.0
+offset_bottom = 238.0
+color = Color(0.15, 0.25, 0.4, 1)
+
+[node name="MedBay" type="ColorRect" parent="Room" unique_id=1101972494]
+offset_top = 242.0
+offset_right = 318.0
+offset_bottom = 480.0
+color = Color(0.4, 0.15, 0.15, 1)
+
+[node name="AirlockCorridor" type="ColorRect" parent="Room" unique_id=1210932857]
+offset_left = 322.0
+offset_top = 242.0
+offset_right = 640.0
+offset_bottom = 480.0
+color = Color(0.3, 0.3, 0.35, 1)
+
+[node name="WallTop" type="StaticBody2D" parent="." unique_id=1113029726]
+position = Vector2(320, -4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WallTop" unique_id=428572300]
+shape = SubResource("RectangleShape2D_sgp6g")
+
+[node name="WallBottom" type="StaticBody2D" parent="." unique_id=268482238]
+position = Vector2(320, 484)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WallBottom" unique_id=803767335]
+shape = SubResource("RectangleShape2D_o5qli")
+
+[node name="WallLeft" type="StaticBody2D" parent="." unique_id=1958367046]
+position = Vector2(-4, 240)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WallLeft" unique_id=1955431124]
+shape = SubResource("RectangleShape2D_0wfyh")
+
+[node name="WallRight" type="StaticBody2D" parent="." unique_id=427871556]
+position = Vector2(644, 240)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WallRight" unique_id=910804145]
+shape = SubResource("RectangleShape2D_sugp2")
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=1548989676]
+
+[node name="ZoneLabel" type="Label" parent="UI" unique_id=1884809633]
+unique_name_in_owner = true
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 67.0
+offset_bottom = 33.0
+text = "Lounge"
+
+[node name="MorphSelectUI" type="PanelContainer" parent="UI" unique_id=191452353]
+process_mode = 3
+offset_left = 200.0
+offset_top = 100.0
+offset_right = 520.0
+offset_bottom = 300.0
+script = ExtResource("2_tbgi4")
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/MorphSelectUI" unique_id=1495753709]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/MorphSelectUI/MarginContainer" unique_id=712831738]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="UI/MorphSelectUI/MarginContainer/VBoxContainer" unique_id=1245614512]
+layout_mode = 2
+text = "— Resleeving Pod —"
+horizontal_alignment = 1
+
+[node name="ButtonBox" type="VBoxContainer" parent="UI/MorphSelectUI/MarginContainer/VBoxContainer" unique_id=1073856976]
+layout_mode = 2
+
+[node name="HpBar" type="ProgressBar" parent="UI"]
+offset_left = 480.0
+offset_top = 10.0
+offset_right = 630.0
+offset_bottom = 24.0
+max_value = 100.0
+value = 100.0
+show_percentage = false
+script = ExtResource("8_hpbar")
+
+[node name="MoxieBar" type="ProgressBar" parent="UI"]
+offset_left = 480.0
+offset_top = 28.0
+offset_right = 630.0
+offset_bottom = 42.0
+max_value = 100.0
+value = 100.0
+show_percentage = false
+script = ExtResource("10_moxie")
+
+[node name="MoxieFlavor" type="Label" parent="UI"]
+offset_left = 380.0
+offset_top = 46.0
+offset_right = 630.0
+offset_bottom = 66.0
+horizontal_alignment = 2
+
+[node name="Player" parent="." unique_id=225571165 groups=["player"] instance=ExtResource("1_o5qli")]
+position = Vector2(159, 119)
+
+[node name="ResleevingPod" parent="." unique_id=1777523461 instance=ExtResource("4_tefeu")]
+position = Vector2(159, 361)
+
+[node name="TransitionLayer" type="CanvasLayer" parent="." unique_id=1741904449]
+process_mode = 3
+layer = 100
+script = ExtResource("5_tbgi4")
+
+[node name="FadeOverlay" type="ColorRect" parent="TransitionLayer" unique_id=348770063]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="FlavorLabel" type="Label" parent="TransitionLayer" unique_id=1349991445]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SfxPlayer" type="AudioStreamPlayer" parent="TransitionLayer" unique_id=1136400116]
+unique_name_in_owner = true
+process_mode = 3
+
+[node name="DialogueBox" parent="." unique_id=1457993712 instance=ExtResource("6_o6xl0")]
+
+[node name="SampleLocker" parent="." unique_id=1101292458 instance=ExtResource("7_tipki")]
+position = Vector2(100, 420)
+prompt_text = "[E] Sample Locker"
+visual_color = Color(0.9, 0.8, 0.2, 1)
+
+[node name="Terminal" parent="." unique_id=776027766 instance=ExtResource("7_tipki")]
+position = Vector2(480, 119)
+prompt_text = "[E] Terminal"
+visual_color = Color(0.2, 0.8, 0.9, 1)
+
+[node name="AirlockControl" parent="." unique_id=1657881812 instance=ExtResource("7_tipki")]
+position = Vector2(480, 361)
+prompt_text = "[E] Airlock Control"
+visual_color = Color(0.9, 0.5, 0.1, 1)
+
+[node name="LoreTerminal" parent="." unique_id=485646478 instance=ExtResource("7_tipki")]
+position = Vector2(260, 60)
+prompt_text = "[E] Data Pad"
+visual_color = Color(0.3, 0.7, 0.3, 1)
+
+[node name="SuspiciousDevice" parent="." instance=ExtResource("9_sdevice")]
+position = Vector2(420, 180)
+
+[node name="EndScreen" parent="." instance=ExtResource("11_endscr")]
