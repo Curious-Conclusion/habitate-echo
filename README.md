@@ -55,8 +55,14 @@ Then visit `http://localhost:8080/HabitatEcho.html`
 ## License & Attribution
 
 This is a non-commercial fan work based on **Eclipse Phase** by Posthuman Studios LLC.  
-Eclipse Phase is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).  
-This game is released under the same license. See [LICENSE](LICENSE) for full details.
+Eclipse Phase is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+
+Habitat Echo is **dual-licensed**:
+- **Source code** — [PolyForm Noncommercial License 1.0.0](LICENSE-CODE)
+- **Assets & prose** — [CC BY-NC-SA 4.0](LICENSE-ASSETS) (ShareAlike, to match Eclipse Phase)
+
+See [LICENSE](LICENSE) for the full scope and file-pattern breakdown. The bundled
+`addons/godot_ai` plugin is third-party and licensed separately.
 
 > *Eclipse Phase and all related content is copyright Posthuman Studios LLC.*  
 > *This fan game is not affiliated with or endorsed by Posthuman Studios.*

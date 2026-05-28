@@ -7,86 +7,93 @@ A tiny Eclipse Phase fan game demo built in Godot 4.
 The player is a Firewall sentinel investigating a suspect cortical stack
 inside a small orbital habitat module. A dormant async threat lurks in the
 station network. The player must resleeve into different morphs to bypass
-obstacles, gather evidence, and neutralise the threat before it escapes
-into the mesh.
+obstacles, complete the mission objectives, and survive a hostile nanite
+swarm before it overwhelms them.
 
 ## Setting
 
 - **Perspective:** 2D top-down
-- **Map:** A single pressurised habitat room (~640 × 480 playable area)
-  divided into four zones:
-  - **Lounge** — starting area, body bank with two spare morphs
-  - **Server Alcove** — locked terminal; requires a morph with cyberbrain
-    interface
-  - **Med Bay** — resleeving pod, evidence sample
-  - **Airlock Corridor** — final objective; requires a morph with vacuum
-    sealing
+- **Map:** A single pressurised habitat room with a resleeving pod, a
+  scannable device, and roaming nanite hazard.
 
 ## Morphs
 
-The player's ego can occupy one morph at a time. Switching happens at the
-resleeving pod in the Med Bay.
+The player's ego occupies one morph at a time. Switching happens at the
+resleeving pod by pressing **Interact (E)**, which opens the morph-select
+UI. Stats below are as implemented in `scripts/morph_manager.gd`.
 
-| Morph    | Trait              | Use                          |
-|----------|--------------------|------------------------------|
-| Splicer  | Standard mobility  | Default starting morph       |
-| Infomorph| Cyberbrain access  | Interface with the server    |
-| Synth    | Vacuum sealed      | Survive the airlock corridor |
+| Morph      | Speed | Max Health | Ability      | Use                          |
+|------------|-------|------------|--------------|------------------------------|
+| Octomorph  | 150   | 80         | Wall-cling   | Default starting morph; fast |
+| Synth      | 120   | 150        | Vacuum-seal  | Durable; survive the airlock |
+| Biomorph   | 170   | 100        | Cyberbrain   | Interface with the terminal  |
 
-Unoccupied morphs remain where they were left and can be retrieved later.
+The starting morph is the **Octomorph**.
 
 ## Player Controls
 
-| Input          | Action                |
-|----------------|-----------------------|
-| WASD / Arrows  | Move                  |
-| E              | Interact / Pick up    |
-| R              | Resleeve (at pod)     |
-| Tab            | Open inventory        |
-| Esc            | Pause menu            |
+Only two input actions are defined (`project.godot`):
+
+| Input          | Action                                   |
+|----------------|------------------------------------------|
+| WASD / Arrows  | Move (8-direction)                       |
+| E              | Interact — pick up, scan, resleeve, talk |
+
+Resleeving, dialogue, and device scanning are all driven by the single
+Interact action.
 
 ## Core Loop
 
 1. Explore the room and read environmental clues.
-2. Walk to the Med Bay pod and resleeve into the morph that fits the
-   current obstacle.
-3. Use that morph's trait to access a locked zone and collect evidence or
-   advance the objective.
-4. Return to the pod, resleeve again if needed, and repeat.
+2. Walk to the resleeving pod and switch into the morph whose ability
+   fits the current obstacle.
+3. Use that morph's trait to advance an objective.
+4. Avoid or outrun the nanite swarm while doing so.
 
 ## Objectives
 
-1. **Retrieve the cortical stack** from the Med Bay sample locker (any
-   morph).
-2. **Scan the stack** at the Server Alcove terminal (requires Infomorph).
-3. **Vent the async signal** by opening the outer airlock (requires
-   Synth).
+Tracked in `scripts/mission_manager.gd`:
+
+1. **Retrieve the cortical stack** (`retrieve_stack`).
+2. **Scan the stack** at the terminal (`scan_stack`) — requires the
+   Biomorph's cyberbrain ability.
+3. **Vent the async signal** through the airlock (`vent_signal`) —
+   requires the Synth's vacuum-seal ability.
 
 ## Win Condition
 
-Complete all three objectives. A short Firewall debrief screen confirms
+Complete all three objectives. A Firewall debrief / end screen confirms
 mission success.
 
 ## Fail State
 
-None for this demo — the player can explore freely. A future version may
-add a timer representing the async signal propagating through the mesh.
+The habitat is patrolled by a **nanite swarm** (`scripts/nanite_swarm.gd`)
+that chases the player, deals periodic damage, and drains Moxie on contact.
+If the current morph's health is depleted the player dies; the player then
+respawns (a resleeve), and the swarm pauses while the player is dead.
+
+## Moxie / Stress
+
+The player tracks a Moxie value, reduced by nanite contact and surfaced via
+a Moxie bar UI (`scripts/moxie_bar.gd`). Health is shown via an HP bar
+(`scripts/hp_bar.gd`).
 
 ## Art & Audio (Placeholder)
 
-- 16 × 16 px tile set, simple coloured sprites for morphs.
-- Minimal ambient hum; UI blip on interact.
+- Morphs and the nanite swarm currently use procedurally generated
+  placeholder textures (colored blobs) until real sprites exist.
+- No audio yet.
 
 ## License
 
-> This is a fan work set in the **Eclipse Phase** universe created by
-> Posthuman Studios. Eclipse Phase is released under the
-> **Creative Commons Attribution-NonCommercial-ShareAlike 4.0
-> International (CC BY-NC-SA 4.0)** license.
+> Habitat Echo is a fan work set in the **Eclipse Phase** universe created
+> by Posthuman Studios LLC. Eclipse Phase is released under
+> **CC BY-NC-SA**.
 >
-> This project is licensed under the same terms:
-> **CC BY-NC-SA 4.0** — https://creativecommons.org/licenses/by-nc-sa/4.0/
+> This project is **dual-licensed**: source code under the
+> **PolyForm Noncommercial License 1.0.0** (`LICENSE-CODE`), and assets and
+> prose under **CC BY-NC-SA 4.0** (`LICENSE-ASSETS`). See `LICENSE` for the
+> full scope breakdown.
 >
-> Eclipse Phase is a trademark of Posthuman Studios LLC. Some content
-> used under the terms of the Creative Commons license is the property
-> of Posthuman Studios LLC. https://eclipsephase.com
+> Eclipse Phase is a trademark of Posthuman Studios LLC. This fan game is
+> not affiliated with or endorsed by Posthuman Studios.

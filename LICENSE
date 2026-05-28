@@ -1,38 +1,70 @@
-Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+Habitat Echo — License
 
-This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0
-International License. To view a copy of this license, visit:
-https://creativecommons.org/licenses/by-nc-sa/4.0/
+Habitat Echo is a noncommercial fan game set in the Eclipse Phase universe.
+This project is dual-licensed.
 
-You are free to:
-  Share — copy and redistribute the material in any medium or format
-  Adapt — remix, transform, and build upon the material
+  Source code is licensed under the PolyForm Noncommercial License 1.0.0.
+  See LICENSE-CODE for the full text.
 
-Under the following terms:
-  Attribution — You must give appropriate credit, provide a link to the license,
-                and indicate if changes were made.
-  NonCommercial — You may not use the material for commercial purposes.
-  ShareAlike — If you remix, transform, or build upon the material, you must
-               distribute your contributions under the same license as the original.
+  Game assets, media, and prose documentation are licensed under the
+  Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+  License (CC BY-NC-SA 4.0). See LICENSE-ASSETS for terms and canonical
+  text.
 
--------------------------------------------------------------------------------
+Both licenses prohibit commercial use. The ShareAlike term on the assets
+exists because the underlying Eclipse Phase material is itself licensed
+under CC BY-NC-SA — see the Eclipse Phase notice below.
 
-ATTRIBUTION & CREDITS
+----------------------------------------------------------------------
+Scope
+----------------------------------------------------------------------
 
-Habitat Echo is a fan game based on the Eclipse Phase tabletop roleplaying game.
+Covered by LICENSE-CODE (PolyForm Noncommercial 1.0.0):
+    *.gd
+    *.gd.uid
+    *.tscn
+    *.tres
+    *.cfg
+    *.import
+    project.godot
+    export_presets.cfg
+
+Covered by LICENSE-ASSETS (CC BY-NC-SA 4.0):
+    icon.svg
+    README.md
+    game_design.md
+
+NOT covered by either license (third-party / generated):
+    addons/**        Third-party plugins under their own licenses.
+                     The godot_ai addon is licensed separately; see
+                     addons/godot_ai/LICENSE.
+    exports/**       Generated build output (not tracked in the repo).
+
+Any file not listed above is licensed under whichever of the two licenses
+better fits its kind (source code -> LICENSE-CODE; prose, image, audio,
+or other creative content -> LICENSE-ASSETS).
+
+Note on Eclipse Phase content: any Eclipse Phase setting, lore, names,
+or narrative text reproduced or adapted in this project — including such
+text embedded inside source files — remains subject to CC BY-NC-SA 4.0
+under the Eclipse Phase license, regardless of the file pattern it
+appears in.
+
+----------------------------------------------------------------------
+Eclipse Phase Attribution
+----------------------------------------------------------------------
+
+Habitat Echo is a fan work based on the Eclipse Phase tabletop
+roleplaying game.
 
 Eclipse Phase was created by and is copyright Posthuman Studios LLC.
-Eclipse Phase is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0
-International. For more information visit: https://eclipsephase.com
+Eclipse Phase is licensed under Creative Commons
+Attribution-NonCommercial-ShareAlike. For more information visit:
+https://eclipsephase.com
 
 This fan work is not affiliated with or endorsed by Posthuman Studios LLC.
-It is a non-commercial fan creation made in the spirit of the Eclipse Phase open license.
+It is a noncommercial fan creation made in the spirit of the Eclipse
+Phase open license.
 
-Habitat Echo game code and original content:
-  Copyright (C) 2026 JD
-  Licensed under CC BY-NC-SA 4.0
-
--------------------------------------------------------------------------------
-
-THE FULL LICENSE TEXT IS AVAILABLE AT:
-https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
+Habitat Echo code and original content:
+  Copyright (c) 2026 Adaptive Bioscience, LLC.
