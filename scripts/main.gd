@@ -9,11 +9,21 @@ const NaniteSwarmScene := preload("res://scenes/nanite_swarm.tscn")
 @onready var terminal: Area2D = $Terminal
 @onready var airlock_control: Area2D = $AirlockControl
 @onready var lore_terminal: Area2D = $LoreTerminal
+@onready var maintenance_hatch: Area2D = $MaintenanceHatch
+@onready var autodoc: Area2D = $Autodoc
+@onready var glitch_layer: CanvasLayer = $GlitchLayer
+@onready var hacking_minigame: CanvasLayer = $HackingMinigame
 @onready var suspicious_device: Area2D = $SuspiciousDevice
 @onready var player: CharacterBody2D = $Player
 @onready var hp_bar: ProgressBar = $UI/HpBar
 @onready var moxie_bar: ProgressBar = $UI/MoxieBar
 @onready var end_screen: CanvasLayer = $EndScreen
+@onready var camera: Camera2D = $Camera2D
+@onready var crew_npc: Area2D = $CrewNPC
+
+var firewall_rep := 0
+var has_override := false
+var _npc_talked := false
 
 func _ready() -> void:
 	resleeving_pod.interact_requested.connect(morph_select_ui.open)
@@ -21,23 +31,122 @@ func _ready() -> void:
 	terminal.interact_requested.connect(_on_terminal)
 	airlock_control.interact_requested.connect(_on_airlock)
 	lore_terminal.interact_requested.connect(_on_lore_terminal)
+	maintenance_hatch.interact_requested.connect(_on_maintenance_hatch)
+	autodoc.interact_requested.connect(_on_autodoc)
+	crew_npc.interact_requested.connect(_on_crew_npc)
 	suspicious_device.scan_completed.connect(_on_device_scanned)
 	player.player_died.connect(_on_player_died)
+	player.moxie_flavor.connect(moxie_bar.show_flavor)
 	MorphManager.morph_changed.connect(_on_resleeve_moxie)
 	hp_bar.setup(player)
 	moxie_bar.setup(player)
+	glitch_layer.setup(player)
+	hacking_minigame.setup(player)
+	hacking_minigame.hack_succeeded.connect(_on_hack_succeeded)
+	hacking_minigame.hack_failed.connect(_on_hack_failed)
 	MissionManager.all_objectives_completed.connect(_on_all_complete)
 
-# -- Sample Locker (Med Bay, any morph) --
+func _process(_delta: float) -> void:
+	# Camera trails the player; Camera2D limits keep it inside the station.
+	camera.global_position = player.global_position
+
+# -- Crew NPC (Crew Quarters, branching dialogue + Firewall reputation) --
+
+func _on_crew_npc() -> void:
+	if has_override:
+		dialogue_box.show_lines(["\"The override's 77-ALEPH. Use it at the terminal — hurry.\""])
+		return
+	if _npc_talked:
+		if firewall_rep > 0:
+			_npc_offer_help()
+		else:
+			dialogue_box.show_lines(["The crew member won't meet your eyes. \"...Just leave me alone.\""])
+		return
+	_npc_talked = true
+	dialogue_box.show_lines_with_choices(
+		[
+			"A sleeved crew member is wedged into the corner, shaking.",
+			"\"Stay back! Are you one of them? One of the infected?\"",
+		],
+		[
+			"\"I'm Firewall. I'm here to help.\"",
+			"\"Tell me what you know. Now.\"",
+			"\"Who are you?\"",
+		],
+	)
+	dialogue_box.choice_made.connect(_on_npc_choice, CONNECT_ONE_SHOT)
+
+func _on_npc_choice(index: int) -> void:
+	match index:
+		0:  # reassure -> trust
+			firewall_rep += 1
+			dialogue_box.show_lines(["The tension drains from their shoulders. \"Firewall. Oh, thank god.\""])
+			await dialogue_box.dialogue_finished
+			_npc_offer_help()
+		1:  # intimidate -> hostile
+			firewall_rep -= 1
+			dialogue_box.show_lines(["They flinch away. \"I don't know anything. Leave me ALONE.\""])
+		2:  # neutral -> lore, no trust earned
+			dialogue_box.show_lines([
+				"\"I was the station's mesh tech. Before the async tore through us.\"",
+				"\"Stop it, and maybe this nightmare ends. That's all I've got.\"",
+			])
+
+func _npc_offer_help() -> void:
+	has_override = true
+	dialogue_box.show_lines([
+		"\"Listen — I rerouted the async's lockout before I hid in here.\"",
+		"\"Override code: 77-ALEPH. Punch it into the Server Alcove terminal.\"",
+		"\"It skips the intrusion gauntlet entirely. Just end this.\"",
+	])
+
+# -- Sample Locker (Med Bay, breadcrumb hint) --
 
 func _on_sample_locker() -> void:
+	dialogue_box.show_lines([
+		"You pry open the sample locker. It's empty.",
+		"A maintenance log is taped inside:",
+		"\"Stack moved to the crawlspace hatch in the Server Alcove — too sensitive to leave in Med Bay.\"",
+	])
+
+# -- Med Autodoc (Med Bay, restores Moxie, limited doses) --
+
+const AUTODOC_RESTORE := 40
+var _autodoc_doses := 2
+
+func _on_autodoc() -> void:
+	if _autodoc_doses <= 0:
+		dialogue_box.show_lines(["The autodoc's medichine reservoir is empty."])
+		return
+	if player.current_moxie >= player.max_moxie:
+		dialogue_box.show_lines(["Your ego is stable. The autodoc finds nothing to mend."])
+		return
+	_autodoc_doses -= 1
+	player.restore_moxie(AUTODOC_RESTORE)
+	dialogue_box.show_lines([
+		"The autodoc administers a course of calming medichines.",
+		"Your thoughts settle; the static at the edges recedes.",
+		"Moxie restored. Doses remaining: %d." % _autodoc_doses,
+	])
+
+# -- Maintenance Hatch (Server Alcove, requires WALL_CLING) --
+
+func _on_maintenance_hatch() -> void:
 	if MissionManager.is_complete(&"retrieve_stack"):
-		dialogue_box.show_lines(["The locker is empty. You already have the cortical stack."])
+		dialogue_box.show_lines(["The maintenance hatch hangs open. The crawlspace beyond is empty."])
+		return
+	var morph := MorphManager.get_current_morph()
+	if morph.ability != MorphManager.Ability.WALL_CLING:
+		dialogue_box.show_lines([
+			"A narrow maintenance hatch is wedged behind the server racks.",
+			"The crawlspace beyond is too tight for this morph to navigate.",
+			"Try resleeving into the Octomorph at the Med Bay pod.",
+		])
 		return
 	MissionManager.complete_objective(&"retrieve_stack")
 	dialogue_box.show_lines([
-		"You open the sample locker.",
-		"Inside, a cortical stack glints under the amber light.",
+		"You fold your Octomorph limbs and slip into the crawlspace.",
+		"Wedged behind a coolant line, a cortical stack glints in the dark.",
 		"Cortical stack retrieved.",
 	])
 
@@ -61,13 +170,47 @@ func _on_terminal() -> void:
 	if MissionManager.is_complete(&"scan_stack"):
 		dialogue_box.show_lines(["You've already scanned the cortical stack."])
 		return
+	# With the crew override, you can skip the intrusion gauntlet entirely.
+	if has_override:
+		dialogue_box.show_lines_with_choices(
+			["The crew override (77-ALEPH) is ready. Use it, or crack the lockout yourself?"],
+			["Use override — skip the hack", "Hack it manually"],
+		)
+		dialogue_box.choice_made.connect(_on_terminal_choice, CONNECT_ONE_SHOT)
+		return
+	# Otherwise, break the async's lockout via the intrusion minigame.
+	hacking_minigame.open()
+
+func _on_terminal_choice(index: int) -> void:
+	if index == 0:
+		MissionManager.complete_objective(&"scan_stack")
+		dialogue_box.show_lines([
+			"You enter the crew override: 77-ALEPH.",
+			"The async's lockout folds open without a fight.",
+			"The scan reveals an async infection buried in the ego backup.",
+			"The signal must be vented before it reaches the mesh.",
+			"Objective complete: Stack scanned.",
+		])
+	else:
+		hacking_minigame.open()
+
+func _on_hack_succeeded() -> void:
 	MissionManager.complete_objective(&"scan_stack")
 	dialogue_box.show_lines([
-		"You slot the cortical stack into the terminal.",
+		"You trace the lockout route and crack the async's defences.",
 		"The scan reveals an async infection buried in the ego backup.",
 		"The signal must be vented before it reaches the mesh.",
 		"Objective complete: Stack scanned.",
 	])
+
+func _on_hack_failed() -> void:
+	player.reduce_moxie(15)
+	dialogue_box.show_lines([
+		"INTRUSION DETECTED. The async lashes back through the mesh.",
+		"The feedback sears your mind — and it's summoning defenders.",
+	])
+	await dialogue_box.dialogue_finished
+	_spawn_nanite_swarm()
 
 # -- Airlock Control (Airlock Corridor, requires VACUUM_SEAL) --
 
@@ -116,7 +259,8 @@ func _on_lore_choice(index: int) -> void:
 		1:
 			dialogue_box.show_lines([
 				"FIREWALL BRIEFING: Suspect async contamination detected.",
-				"Retrieve and scan the cortical stack in Med Bay.",
+				"The cortical stack was hidden in a Server Alcove crawlspace —",
+				"only an Octomorph can reach it. Retrieve and scan it.",
 				"Neutralise any threat before it reaches the mesh.",
 			])
 		2:

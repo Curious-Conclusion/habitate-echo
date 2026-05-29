@@ -3,6 +3,7 @@ extends CharacterBody2D
 signal health_changed(current: int, maximum: int)
 signal moxie_changed(current: int, maximum: int)
 signal player_died
+signal moxie_flavor(text: String)
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
@@ -14,6 +15,12 @@ var current_health: int = 100
 var is_dead := false
 var max_moxie: int = 100
 var current_moxie: int = 100
+
+var speed_mult: float = 1.0   ## transient multiplier from a Moxie burn
+var invulnerable: bool = false
+
+const MOXIE_BURN_COST := 30
+const DERANGE_THRESHOLD := 35  ## below this, low-Moxie derangement sets in
 
 func _ready() -> void:
 	_apply_morph(MorphManager.get_current_morph())
@@ -29,9 +36,23 @@ func _physics_process(_delta: float) -> void:
 	if input.length() > 1.0:
 		input = input.normalized()
 
-	velocity = input * move_speed
+	velocity = input * move_speed * speed_mult * _derange_factor()
 	move_and_slide()
 	_update_animation(input)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("moxie_burn"):
+		try_moxie_burn()
+
+## Derangement: at low Moxie, control slows. 1.0 above threshold, ramping
+## down to 0.5 at zero Moxie.
+func _derange_factor() -> float:
+	if current_moxie >= DERANGE_THRESHOLD:
+		return 1.0
+	return remap(float(current_moxie), 0.0, float(DERANGE_THRESHOLD), 0.5, 1.0)
+
+func is_deranged() -> bool:
+	return current_moxie < DERANGE_THRESHOLD
 
 func _on_morph_changed(morph_id: StringName) -> void:
 	_apply_morph(MorphManager.get_morph(morph_id))
@@ -42,13 +63,17 @@ func _apply_morph(data: MorphManager.MorphData) -> void:
 	current_health = max_health
 	base_color = data.color
 	is_dead = false
-	_build_placeholder_frames()
+	var art_dir: String = _ART_DIRS.get(data.id, "")
+	if art_dir != "":
+		_build_morph_frames(art_dir)
+	else:
+		_build_placeholder_frames()
 	sprite.play("idle_" + current_dir)
 	health_changed.emit(current_health, max_health)
 	moxie_changed.emit(current_moxie, max_moxie)
 
 func take_damage(amount: int) -> void:
-	if is_dead:
+	if is_dead or invulnerable:
 		return
 	current_health = maxi(current_health - amount, 0)
 	health_changed.emit(current_health, max_health)
@@ -75,6 +100,58 @@ func reduce_moxie(amount: int) -> void:
 	current_moxie = maxi(current_moxie - amount, 0)
 	moxie_changed.emit(current_moxie, max_moxie)
 
+func restore_moxie(amount: int) -> void:
+	current_moxie = mini(current_moxie + amount, max_moxie)
+	moxie_changed.emit(current_moxie, max_moxie)
+
+# ---------------------------------------------------------------------------
+# Moxie burn — spend Moxie for an emergency effect. The result depends on the
+# sleeve you currently wear (its ability shapes what the burn does).
+# ---------------------------------------------------------------------------
+
+func try_moxie_burn() -> void:
+	if is_dead:
+		return
+	if current_moxie < MOXIE_BURN_COST:
+		moxie_flavor.emit("Not enough Moxie to burn.")
+		return
+	reduce_moxie(MOXIE_BURN_COST)
+	match MorphManager.get_current_morph().ability:
+		MorphManager.Ability.WALL_CLING:
+			_burn_scramble()
+		MorphManager.Ability.VACUUM_SEAL:
+			_burn_emp()
+		MorphManager.Ability.CYBERBRAIN:
+			_burn_medichine()
+		_:
+			moxie_flavor.emit("This sleeve has nothing to burn for.")
+
+## Octomorph: ink-and-scramble — a burst of speed and brief invulnerability.
+func _burn_scramble() -> void:
+	moxie_flavor.emit("Ink and scramble — you blur out of reach.")
+	speed_mult = 2.0
+	invulnerable = true
+	sprite.modulate = Color(0.6, 1.0, 0.85)
+	await get_tree().create_timer(3.0).timeout
+	speed_mult = 1.0
+	invulnerable = false
+	sprite.modulate = Color.WHITE
+
+## Synth: EMP discharge — disperse every nanite swarm on the station.
+func _burn_emp() -> void:
+	var swarms := get_tree().get_nodes_in_group("nanite_swarm")
+	for s in swarms:
+		s.queue_free()
+	if swarms.is_empty():
+		moxie_flavor.emit("EMP discharge — nothing to disperse.")
+	else:
+		moxie_flavor.emit("EMP discharge — the swarm scatters into static.")
+
+## Biomorph: medichine surge — flush damage and restore the flesh.
+func _burn_medichine() -> void:
+	moxie_flavor.emit("Medichine surge — your wounds knit shut.")
+	restore_health()
+
 func _update_animation(input: Vector2) -> void:
 	if input == Vector2.ZERO:
 		sprite.play("idle_" + current_dir)
@@ -92,6 +169,43 @@ func _update_animation(input: Vector2) -> void:
 # Procedural placeholder — draws a simple octomorph blob with tentacle stubs.
 # Replace with real SpriteFrames once art is ready.
 # ---------------------------------------------------------------------------
+
+## Morphs with authored PNG art (res://art/<dir>/) use it; any others fall back
+## to the procedural placeholder below.
+const _ART_DIRS := {
+	&"octomorph": "octomorph",
+	&"synth": "synth",
+	&"biomorph": "biomorph",
+}
+
+func _build_morph_frames(art_dir: String) -> void:
+	var frames := SpriteFrames.new()
+	if frames.has_animation("default"):
+		frames.remove_animation("default")
+	for dir: String in ["down", "up", "left", "right"]:
+		var t0 := _load_sprite_tex("res://art/%s/%s_0.png" % [art_dir, dir])
+		var t1 := _load_sprite_tex("res://art/%s/%s_1.png" % [art_dir, dir])
+		var idle_name := "idle_" + dir
+		frames.add_animation(idle_name)
+		frames.set_animation_speed(idle_name, 2)
+		frames.set_animation_loop(idle_name, true)
+		frames.add_frame(idle_name, t0)
+		var walk_name := "walk_" + dir
+		frames.add_animation(walk_name)
+		frames.set_animation_speed(walk_name, 6)
+		frames.set_animation_loop(walk_name, true)
+		frames.add_frame(walk_name, t0)
+		frames.add_frame(walk_name, t1)
+	sprite.sprite_frames = frames
+
+func _load_sprite_tex(path: String) -> Texture2D:
+	# Use the imported resource when available; otherwise read the PNG directly.
+	if ResourceLoader.exists(path):
+		return load(path)
+	var img := Image.new()
+	if img.load(path) == OK:
+		return ImageTexture.create_from_image(img)
+	return null
 
 func _build_placeholder_frames() -> void:
 	var frames := SpriteFrames.new()

@@ -27,7 +27,7 @@ func _physics_process(delta: float) -> void:
 	velocity = dir * chase_speed
 	move_and_slide()
 
-	if player_in_zone:
+	if player_in_zone and not player.invulnerable:
 		damage_timer -= delta
 		if damage_timer <= 0.0:
 			player.take_damage(damage)
@@ -55,9 +55,17 @@ func _build_swarm_frames() -> void:
 	frames.add_animation("idle")
 	frames.set_animation_speed("idle", 4)
 	frames.set_animation_loop("idle", true)
-	frames.add_frame("idle", _swarm_tex(0))
-	frames.add_frame("idle", _swarm_tex(1))
+	frames.add_frame("idle", _load_swarm_tex("res://art/swarm/0.png"))
+	frames.add_frame("idle", _load_swarm_tex("res://art/swarm/1.png"))
 	sprite.sprite_frames = frames
+
+func _load_swarm_tex(path: String) -> Texture2D:
+	if ResourceLoader.exists(path):
+		return load(path)
+	var img := Image.new()
+	if img.load(path) == OK:
+		return ImageTexture.create_from_image(img)
+	return _swarm_tex(0)  # fall back to procedural if the PNG is missing
 
 func _swarm_tex(frame_idx: int) -> ImageTexture:
 	var s := 20

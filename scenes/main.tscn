@@ -7,16 +7,18 @@
 [ext_resource type="Script" uid="uid://d0uu8mquc3pt6" path="res://scripts/resleeve_transition.gd" id="5_tbgi4"]
 [ext_resource type="PackedScene" uid="uid://ijn40a24ls27" path="res://scenes/dialogue_box.tscn" id="6_o6xl0"]
 [ext_resource type="PackedScene" uid="uid://b0kd1kpl7l2sq" path="res://scenes/interactable.tscn" id="7_tipki"]
-[ext_resource type="Script" path="res://scripts/hp_bar.gd" id="8_hpbar"]
+[ext_resource type="Script" uid="uid://bbpmvcgravlpo" path="res://scripts/hp_bar.gd" id="8_hpbar"]
 [ext_resource type="PackedScene" path="res://scenes/scannable_device.tscn" id="9_sdevice"]
-[ext_resource type="Script" path="res://scripts/moxie_bar.gd" id="10_moxie"]
+[ext_resource type="Script" uid="uid://b2pwogun2gsue" path="res://scripts/moxie_bar.gd" id="10_moxie"]
 [ext_resource type="PackedScene" path="res://scenes/end_screen.tscn" id="11_endscr"]
+[ext_resource type="Script" uid="uid://cx0v4g35cj00s" path="res://scripts/glitch_overlay.gd" id="12_eb6dy"]
+[ext_resource type="Script" path="res://scripts/hacking_minigame.gd" id="13_hack"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sgp6g"]
-size = Vector2(648, 8)
+size = Vector2(1000, 8)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_o5qli"]
-size = Vector2(648, 8)
+size = Vector2(1000, 8)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0wfyh"]
 size = Vector2(8, 488)
@@ -29,6 +31,11 @@ script = ExtResource("1_jyhfs")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1713854878]
 position = Vector2(320, 240)
+zoom = Vector2(1.5, 1.5)
+limit_left = 0
+limit_top = 0
+limit_right = 984
+limit_bottom = 484
 
 [node name="Room" type="Node2D" parent="." unique_id=1250272977]
 
@@ -56,14 +63,20 @@ offset_right = 640.0
 offset_bottom = 480.0
 color = Color(0.3, 0.3, 0.35, 1)
 
+[node name="CrewQuarters" type="ColorRect" parent="Room"]
+offset_left = 644.0
+offset_right = 980.0
+offset_bottom = 480.0
+color = Color(0.28, 0.2, 0.34, 1)
+
 [node name="WallTop" type="StaticBody2D" parent="." unique_id=1113029726]
-position = Vector2(320, -4)
+position = Vector2(490, -4)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WallTop" unique_id=428572300]
 shape = SubResource("RectangleShape2D_sgp6g")
 
 [node name="WallBottom" type="StaticBody2D" parent="." unique_id=268482238]
-position = Vector2(320, 484)
+position = Vector2(490, 484)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WallBottom" unique_id=803767335]
 shape = SubResource("RectangleShape2D_o5qli")
@@ -75,7 +88,7 @@ position = Vector2(-4, 240)
 shape = SubResource("RectangleShape2D_0wfyh")
 
 [node name="WallRight" type="StaticBody2D" parent="." unique_id=427871556]
-position = Vector2(644, 240)
+position = Vector2(984, 240)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WallRight" unique_id=910804145]
 shape = SubResource("RectangleShape2D_sugp2")
@@ -112,31 +125,37 @@ horizontal_alignment = 1
 [node name="ButtonBox" type="VBoxContainer" parent="UI/MorphSelectUI/MarginContainer/VBoxContainer" unique_id=1073856976]
 layout_mode = 2
 
-[node name="HpBar" type="ProgressBar" parent="UI"]
+[node name="HpBar" type="ProgressBar" parent="UI" unique_id=2040640719]
 offset_left = 480.0
 offset_top = 10.0
 offset_right = 630.0
 offset_bottom = 24.0
-max_value = 100.0
 value = 100.0
 show_percentage = false
 script = ExtResource("8_hpbar")
 
-[node name="MoxieBar" type="ProgressBar" parent="UI"]
+[node name="MoxieBar" type="ProgressBar" parent="UI" unique_id=1186270152]
 offset_left = 480.0
 offset_top = 28.0
 offset_right = 630.0
 offset_bottom = 42.0
-max_value = 100.0
 value = 100.0
 show_percentage = false
 script = ExtResource("10_moxie")
 
-[node name="MoxieFlavor" type="Label" parent="UI"]
+[node name="MoxieFlavor" type="Label" parent="UI" unique_id=1961909387]
 offset_left = 380.0
 offset_top = 46.0
 offset_right = 630.0
 offset_bottom = 66.0
+horizontal_alignment = 2
+
+[node name="BurnHint" type="Label" parent="UI" unique_id=1229963877]
+offset_left = 380.0
+offset_top = 68.0
+offset_right = 630.0
+offset_bottom = 86.0
+text = "[F] Moxie Burn  (cost 30)"
 horizontal_alignment = 2
 
 [node name="Player" parent="." unique_id=225571165 groups=["player"] instance=ExtResource("1_o5qli")]
@@ -192,7 +211,37 @@ position = Vector2(260, 60)
 prompt_text = "[E] Data Pad"
 visual_color = Color(0.3, 0.7, 0.3, 1)
 
-[node name="SuspiciousDevice" parent="." instance=ExtResource("9_sdevice")]
+[node name="CrewNPC" parent="." instance=ExtResource("7_tipki")]
+position = Vector2(812, 240)
+prompt_text = "[E] Talk"
+visual_color = Color(0.86, 0.62, 0.5, 1)
+sprite_path = "res://art/npc/crew.png"
+
+[node name="SuspiciousDevice" parent="." unique_id=71043890 instance=ExtResource("9_sdevice")]
 position = Vector2(420, 180)
 
-[node name="EndScreen" parent="." instance=ExtResource("11_endscr")]
+[node name="EndScreen" parent="." unique_id=158695232 instance=ExtResource("11_endscr")]
+
+[node name="MaintenanceHatch" parent="." unique_id=312438388 instance=ExtResource("7_tipki")]
+position = Vector2(560, 60)
+prompt_text = "[E] Maintenance Hatch"
+visual_color = Color(0.45, 0.5, 0.55, 1)
+
+[node name="Autodoc" parent="." unique_id=1402180935 instance=ExtResource("7_tipki")]
+position = Vector2(60, 300)
+prompt_text = "[E] Med Autodoc"
+visual_color = Color(0.2, 0.8, 0.53333336, 1)
+
+[node name="GlitchLayer" type="CanvasLayer" parent="." unique_id=966877478]
+layer = 50
+script = ExtResource("12_eb6dy")
+
+[node name="Rect" type="ColorRect" parent="GlitchLayer" unique_id=1236801027]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.55, 0, 0.12, 0)
+
+[node name="HackingMinigame" type="CanvasLayer" parent="."]
+script = ExtResource("13_hack")
