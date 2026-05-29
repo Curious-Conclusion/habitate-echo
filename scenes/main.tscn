@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" path="res://scenes/end_screen.tscn" id="11_endscr"]
 [ext_resource type="Script" uid="uid://cx0v4g35cj00s" path="res://scripts/glitch_overlay.gd" id="12_eb6dy"]
 [ext_resource type="Script" path="res://scripts/hacking_minigame.gd" id="13_hack"]
+[ext_resource type="Script" path="res://scripts/interior_walls.gd" id="14_walls"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sgp6g"]
 size = Vector2(1000, 8)
@@ -92,6 +93,9 @@ position = Vector2(984, 240)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WallRight" unique_id=910804145]
 shape = SubResource("RectangleShape2D_sugp2")
+
+[node name="InteriorWalls" type="Node2D" parent="."]
+script = ExtResource("14_walls")
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=1548989676]
 
