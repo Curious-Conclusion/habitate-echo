@@ -1,0 +1,118 @@
+[gd_scene format=3 uid="uid://bp2fbw6crmoto"]
+
+[ext_resource type="Script" path="res://scripts/hub.gd" id="1_hub"]
+[ext_resource type="PackedScene" uid="uid://bu0dbnxtsapat" path="res://scenes/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" uid="uid://ijn40a24ls27" path="res://scenes/dialogue_box.tscn" id="3_dlg"]
+[ext_resource type="PackedScene" uid="uid://b0kd1kpl7l2sq" path="res://scenes/interactable.tscn" id="4_int"]
+[ext_resource type="Script" uid="uid://b2pwogun2gsue" path="res://scripts/moxie_bar.gd" id="5_moxie"]
+
+[sub_resource type="RectangleShape2D" id="RectH"]
+size = Vector2(760, 8)
+
+[sub_resource type="RectangleShape2D" id="RectV"]
+size = Vector2(8, 438)
+
+[node name="Hub" type="Node2D"]
+script = ExtResource("1_hub")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(380, 215)
+zoom = Vector2(1.5, 1.5)
+
+[node name="Room" type="Node2D" parent="."]
+
+[node name="Floor" type="ColorRect" parent="Room"]
+offset_right = 760.0
+offset_bottom = 430.0
+color = Color(0.13, 0.14, 0.18, 1)
+
+[node name="WallTop" type="StaticBody2D" parent="."]
+position = Vector2(380, -4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WallTop"]
+shape = SubResource("RectH")
+
+[node name="WallBottom" type="StaticBody2D" parent="."]
+position = Vector2(380, 434)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WallBottom"]
+shape = SubResource("RectH")
+
+[node name="WallLeft" type="StaticBody2D" parent="."]
+position = Vector2(-4, 215)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WallLeft"]
+shape = SubResource("RectV")
+
+[node name="WallRight" type="StaticBody2D" parent="."]
+position = Vector2(764, 215)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WallRight"]
+shape = SubResource("RectV")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="ZoneLabel" type="Label" parent="UI"]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 260.0
+offset_bottom = 33.0
+text = "Safehouse — Firewall"
+
+[node name="MoxieBar" type="ProgressBar" parent="UI"]
+offset_left = 480.0
+offset_top = 28.0
+offset_right = 630.0
+offset_bottom = 42.0
+value = 100.0
+show_percentage = false
+script = ExtResource("5_moxie")
+
+[node name="MoxieFlavor" type="Label" parent="UI"]
+offset_left = 380.0
+offset_top = 46.0
+offset_right = 630.0
+offset_bottom = 66.0
+horizontal_alignment = 2
+
+[node name="Hint" type="Label" parent="UI"]
+offset_left = 10.0
+offset_top = 614.0
+offset_right = 400.0
+offset_bottom = 638.0
+text = "WASD/Arrows move  ·  [E] interact"
+
+[node name="Player" parent="." groups=["player"] instance=ExtResource("2_player")]
+position = Vector2(380, 360)
+
+[node name="DialogueBox" parent="." instance=ExtResource("3_dlg")]
+
+[node name="OpBoard" parent="." instance=ExtResource("4_int")]
+position = Vector2(130, 90)
+prompt_text = "[E] Op Board"
+visual_color = Color(0.2, 0.6, 0.9, 1)
+
+[node name="ResleevingBay" parent="." instance=ExtResource("4_int")]
+position = Vector2(380, 80)
+prompt_text = "[E] Resleeving Bay"
+visual_color = Color(0.3, 0.75, 0.5, 1)
+
+[node name="Quartermaster" parent="." instance=ExtResource("4_int")]
+position = Vector2(630, 90)
+prompt_text = "[E] Quartermaster"
+visual_color = Color(0.85, 0.65, 0.2, 1)
+
+[node name="Psychosurgery" parent="." instance=ExtResource("4_int")]
+position = Vector2(130, 340)
+prompt_text = "[E] Psychosurgery"
+visual_color = Color(0.7, 0.3, 0.7, 1)
+
+[node name="Handler" parent="." instance=ExtResource("4_int")]
+position = Vector2(630, 340)
+prompt_text = "[E] Handler"
+visual_color = Color(0.3, 0.7, 0.7, 1)
+
+[node name="DebriefTerminal" parent="." instance=ExtResource("4_int")]
+position = Vector2(380, 210)
+prompt_text = "[E] Debrief Terminal"
+visual_color = Color(0.6, 0.6, 0.65, 1)

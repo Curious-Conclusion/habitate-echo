@@ -21,11 +21,16 @@ const NaniteSwarmScene := preload("res://scenes/nanite_swarm.tscn")
 @onready var camera: Camera2D = $Camera2D
 @onready var crew_npc: Area2D = $CrewNPC
 
-var firewall_rep := 0
-var has_override := false
-var _npc_talked := false
-
 func _ready() -> void:
+	# Bootstrap: if this op scene was launched directly (not deployed from the
+	# hub), arm KE-7 as Op 0 so objectives + checkpoint exist.
+	if GameState.current_op_id != &"ke7":
+		SceneFlow.begin_op(&"ke7")
+	# Load persistent ego moxie into the live Player, then mirror in-op changes
+	# back to GameState so the ego carries between ops.
+	player.current_moxie = GameState.moxie
+	player.moxie_changed.emit(player.current_moxie, player.max_moxie)
+	player.moxie_changed.connect(func(c: int, _m: int) -> void: GameState.moxie = c)
 	resleeving_pod.interact_requested.connect(morph_select_ui.open)
 	sample_locker.interact_requested.connect(_on_sample_locker)
 	terminal.interact_requested.connect(_on_terminal)
@@ -53,16 +58,16 @@ func _process(_delta: float) -> void:
 # -- Crew NPC (Crew Quarters, branching dialogue + Firewall reputation) --
 
 func _on_crew_npc() -> void:
-	if has_override:
+	if GameState.get_flag(&"has_override"):
 		dialogue_box.show_lines(["\"The override's 77-ALEPH. Use it at the terminal — hurry.\""])
 		return
-	if _npc_talked:
-		if firewall_rep > 0:
+	if GameState.get_flag(&"npc_talked"):
+		if GameState.firewall_rep > 0:
 			_npc_offer_help()
 		else:
 			dialogue_box.show_lines(["The crew member won't meet your eyes. \"...Just leave me alone.\""])
 		return
-	_npc_talked = true
+	GameState.set_flag(&"npc_talked")
 	dialogue_box.show_lines_with_choices(
 		[
 			"A sleeved crew member is wedged into the corner, shaking.",
@@ -79,12 +84,12 @@ func _on_crew_npc() -> void:
 func _on_npc_choice(index: int) -> void:
 	match index:
 		0:  # reassure -> trust
-			firewall_rep += 1
+			GameState.firewall_rep += 1
 			dialogue_box.show_lines(["The tension drains from their shoulders. \"Firewall. Oh, thank god.\""])
 			await dialogue_box.dialogue_finished
 			_npc_offer_help()
 		1:  # intimidate -> hostile
-			firewall_rep -= 1
+			GameState.firewall_rep -= 1
 			dialogue_box.show_lines(["They flinch away. \"I don't know anything. Leave me ALONE.\""])
 		2:  # neutral -> lore, no trust earned
 			dialogue_box.show_lines([
@@ -93,7 +98,7 @@ func _on_npc_choice(index: int) -> void:
 			])
 
 func _npc_offer_help() -> void:
-	has_override = true
+	GameState.set_flag(&"has_override")
 	dialogue_box.show_lines([
 		"\"Listen — I rerouted the async's lockout before I hid in here.\"",
 		"\"Override code: 77-ALEPH. Punch it into the Server Alcove terminal.\"",
@@ -171,7 +176,7 @@ func _on_terminal() -> void:
 		dialogue_box.show_lines(["You've already scanned the cortical stack."])
 		return
 	# With the crew override, you can skip the intrusion gauntlet entirely.
-	if has_override:
+	if GameState.get_flag(&"has_override"):
 		dialogue_box.show_lines_with_choices(
 			["The crew override (77-ALEPH) is ready. Use it, or crack the lockout yourself?"],
 			["Use override — skip the hack", "Hack it manually"],
@@ -257,12 +262,7 @@ func _on_lore_choice(index: int) -> void:
 				"Last inspection: 14 days ago.",
 			])
 		1:
-			dialogue_box.show_lines([
-				"FIREWALL BRIEFING: Suspect async contamination detected.",
-				"The cortical stack was hidden in a Server Alcove crawlspace —",
-				"only an Octomorph can reach it. Retrieve and scan it.",
-				"Neutralise any threat before it reaches the mesh.",
-			])
+			dialogue_box.show_lines(OpCatalog.get_op(&"ke7").briefing)
 		2:
 			pass
 
@@ -293,11 +293,15 @@ func _on_player_died() -> void:
 		swarm.queue_free()
 	player.reduce_moxie(10)
 	if player.current_moxie <= 0:
-		end_screen.show_end("EGO DEATH", [
-			"Your ego fractures beyond recovery.",
-			"The last resleeving tore something that cannot be repaired.",
-			"Somewhere, a backup of you still exists — but it is no longer you.",
-		], Color(0.15, 0.02, 0.02))
+		# Ego death = lose-continuity fork (DESIGN_OUTLINE.md §9): restore an
+		# older backup, restart the op, carry a sticky trauma. Not a game-over.
+		dialogue_box.show_lines([
+			"Your morph dies — and the emergency resleeve tears something loose.",
+			"Firewall restores you from an older backup. The thread of who you were frays.",
+			"You wake at the deploy point. Something is missing, and it always will be.",
+		])
+		await dialogue_box.dialogue_finished
+		SceneFlow.ego_death_fork()
 		return
 	dialogue_box.show_lines([
 		"Your morph has been destroyed.",
@@ -314,8 +318,8 @@ func _on_player_died() -> void:
 
 func _on_all_complete() -> void:
 	await dialogue_box.dialogue_finished
-	end_screen.show_end("MISSION COMPLETE", [
-		"All objectives fulfilled. The async threat is contained.",
-		"Firewall will scrub the station records. You were never here.",
-		"Your ego backup updates. You survived. This time.",
-	], Color(0.02, 0.1, 0.12))
+	var op_id := GameState.current_op_id
+	GameState.complete_op(op_id)
+	dialogue_box.show_lines(OpCatalog.get_op(op_id).debrief)
+	await dialogue_box.dialogue_finished
+	SceneFlow.go_to_hub()
