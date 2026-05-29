@@ -39,8 +39,14 @@ func _refresh_buttons() -> void:
 
 func _on_morph_pressed(morph_id: StringName) -> void:
 	visible = false
-	var transition := get_node("/root/Main/TransitionLayer") as CanvasLayer
-	transition.play_resleeve(morph_id)
+	# The op scene (any root) owns a TransitionLayer child; resolve it relative to
+	# the current scene rather than a hard-coded /root/Main path.
+	var transition := get_tree().current_scene.get_node_or_null("TransitionLayer") as CanvasLayer
+	if transition:
+		transition.play_resleeve(morph_id)
+	else:
+		MorphManager.switch_morph(morph_id)
+		get_tree().paused = false
 
 func _on_morph_changed(_id: StringName) -> void:
 	_refresh_buttons()

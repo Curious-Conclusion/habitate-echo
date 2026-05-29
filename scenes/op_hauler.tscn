@@ -1,0 +1,211 @@
+[gd_scene format=3 uid="uid://cce5njvjl74q0"]
+
+[ext_resource type="Script" path="res://scripts/op_hauler.gd" id="1_hauler"]
+[ext_resource type="PackedScene" uid="uid://bu0dbnxtsapat" path="res://scenes/player.tscn" id="2_player"]
+[ext_resource type="Script" uid="uid://dqtpu2j3c1dtb" path="res://scripts/morph_select_ui.gd" id="3_morphsel"]
+[ext_resource type="PackedScene" uid="uid://cbnlybvhbndct" path="res://scenes/resleeving_pod.tscn" id="4_pod"]
+[ext_resource type="Script" uid="uid://d0uu8mquc3pt6" path="res://scripts/resleeve_transition.gd" id="5_trans"]
+[ext_resource type="PackedScene" uid="uid://ijn40a24ls27" path="res://scenes/dialogue_box.tscn" id="6_dlg"]
+[ext_resource type="PackedScene" uid="uid://b0kd1kpl7l2sq" path="res://scenes/interactable.tscn" id="7_int"]
+[ext_resource type="Script" uid="uid://bbpmvcgravlpo" path="res://scripts/hp_bar.gd" id="8_hp"]
+[ext_resource type="Script" uid="uid://b2pwogun2gsue" path="res://scripts/moxie_bar.gd" id="9_moxie"]
+[ext_resource type="Script" uid="uid://cx0v4g35cj00s" path="res://scripts/glitch_overlay.gd" id="10_glitch"]
+[ext_resource type="Script" path="res://scripts/vacuum_zone.gd" id="11_vac"]
+
+[sub_resource type="RectangleShape2D" id="RectHWall"]
+size = Vector2(900, 8)
+
+[sub_resource type="RectangleShape2D" id="RectVWall"]
+size = Vector2(8, 488)
+
+[sub_resource type="RectangleShape2D" id="RectVacuum"]
+size = Vector2(440, 238)
+
+[node name="OpHauler" type="Node2D"]
+script = ExtResource("1_hauler")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(450, 240)
+zoom = Vector2(1.5, 1.5)
+limit_left = 0
+limit_top = 0
+limit_right = 900
+limit_bottom = 480
+
+[node name="Room" type="Node2D" parent="."]
+
+[node name="EntryBay" type="ColorRect" parent="Room"]
+offset_right = 440.0
+offset_bottom = 238.0
+color = Color(0.16, 0.22, 0.3, 1)
+
+[node name="Bridge" type="ColorRect" parent="Room"]
+offset_left = 444.0
+offset_right = 900.0
+offset_bottom = 238.0
+color = Color(0.18, 0.26, 0.24, 1)
+
+[node name="BreachedHold" type="ColorRect" parent="Room"]
+offset_top = 242.0
+offset_right = 440.0
+offset_bottom = 480.0
+color = Color(0.06, 0.07, 0.11, 1)
+
+[node name="Corridor" type="ColorRect" parent="Room"]
+offset_left = 444.0
+offset_top = 242.0
+offset_right = 900.0
+offset_bottom = 480.0
+color = Color(0.22, 0.2, 0.24, 1)
+
+[node name="WallTop" type="StaticBody2D" parent="."]
+position = Vector2(450, -4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WallTop"]
+shape = SubResource("RectHWall")
+
+[node name="WallBottom" type="StaticBody2D" parent="."]
+position = Vector2(450, 484)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WallBottom"]
+shape = SubResource("RectHWall")
+
+[node name="WallLeft" type="StaticBody2D" parent="."]
+position = Vector2(-4, 240)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WallLeft"]
+shape = SubResource("RectVWall")
+
+[node name="WallRight" type="StaticBody2D" parent="."]
+position = Vector2(904, 240)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WallRight"]
+shape = SubResource("RectVWall")
+
+[node name="VacuumZone" type="Area2D" parent="."]
+position = Vector2(220, 361)
+monitorable = false
+script = ExtResource("11_vac")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="VacuumZone"]
+shape = SubResource("RectVacuum")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="ZoneLabel" type="Label" parent="UI"]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 260.0
+offset_bottom = 33.0
+text = "Derelict Hauler"
+
+[node name="HpBar" type="ProgressBar" parent="UI"]
+offset_left = 480.0
+offset_top = 10.0
+offset_right = 630.0
+offset_bottom = 24.0
+value = 100.0
+show_percentage = false
+script = ExtResource("8_hp")
+
+[node name="MoxieBar" type="ProgressBar" parent="UI"]
+offset_left = 480.0
+offset_top = 28.0
+offset_right = 630.0
+offset_bottom = 42.0
+value = 100.0
+show_percentage = false
+script = ExtResource("9_moxie")
+
+[node name="MoxieFlavor" type="Label" parent="UI"]
+offset_left = 380.0
+offset_top = 46.0
+offset_right = 630.0
+offset_bottom = 66.0
+horizontal_alignment = 2
+
+[node name="BurnHint" type="Label" parent="UI"]
+offset_left = 380.0
+offset_top = 68.0
+offset_right = 630.0
+offset_bottom = 86.0
+text = "[F] Moxie Burn  (cost 30)"
+horizontal_alignment = 2
+
+[node name="MorphSelectUI" type="PanelContainer" parent="UI"]
+process_mode = 3
+offset_left = 200.0
+offset_top = 100.0
+offset_right = 520.0
+offset_bottom = 300.0
+script = ExtResource("3_morphsel")
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/MorphSelectUI"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/MorphSelectUI/MarginContainer"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="UI/MorphSelectUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "— Resleeving Pod —"
+horizontal_alignment = 1
+
+[node name="ButtonBox" type="VBoxContainer" parent="UI/MorphSelectUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Player" parent="." groups=["player"] instance=ExtResource("2_player")]
+position = Vector2(120, 120)
+
+[node name="ResleevingPod" parent="." instance=ExtResource("4_pod")]
+position = Vector2(300, 120)
+
+[node name="TransitionLayer" type="CanvasLayer" parent="."]
+process_mode = 3
+layer = 100
+script = ExtResource("5_trans")
+
+[node name="FadeOverlay" type="ColorRect" parent="TransitionLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="FlavorLabel" type="Label" parent="TransitionLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SfxPlayer" type="AudioStreamPlayer" parent="TransitionLayer"]
+process_mode = 3
+
+[node name="DialogueBox" parent="." instance=ExtResource("6_dlg")]
+
+[node name="GlitchLayer" type="CanvasLayer" parent="."]
+layer = 50
+script = ExtResource("10_glitch")
+
+[node name="Rect" type="ColorRect" parent="GlitchLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.55, 0, 0.12, 0)
+
+[node name="DataLog" parent="." instance=ExtResource("7_int")]
+position = Vector2(120, 60)
+prompt_text = "[E] Data Log"
+visual_color = Color(0.3, 0.7, 0.3, 1)
+
+[node name="CorticalStack" parent="." instance=ExtResource("7_int")]
+position = Vector2(220, 360)
+prompt_text = "[E] Cortical Stack"
+visual_color = Color(0.9, 0.8, 0.2, 1)
+
+[node name="ExtractPoint" parent="." instance=ExtResource("7_int")]
+position = Vector2(670, 120)
+prompt_text = "[E] Egocast Point"
+visual_color = Color(0.2, 0.8, 0.9, 1)
