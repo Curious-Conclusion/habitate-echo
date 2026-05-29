@@ -1,7 +1,9 @@
-"""Generate Octomorph pixel sprites (32x32 RGBA PNGs) — original art for Habitat Echo.
+"""Generate Octomorph sprites (32x32 RGBA PNGs) — a cyborg uplifted octopus.
 
-4 facing directions x 2 walk frames. Pure-stdlib PNG writer (no Pillow).
-Run from the project root:  python art/gen_octomorph.py
+Eclipse Phase octomorph: bulbous mantle, eight arms, large cephalopod eyes with
+slit pupils, plus cybernetics (a glowing optic, a cortical/mesh implant port,
+circuit traces). 4 facing directions x 2 swim/walk frames. Pure-stdlib PNG.
+Run from project root:  python art/gen_octomorph.py
 """
 import struct
 import zlib
@@ -10,85 +12,122 @@ import math
 
 W = H = 32
 
-BODY   = (60, 180, 110, 255)
-BODY_L = (120, 225, 160, 255)
-BODY_D = (30, 110, 65, 255)
-TENT   = (45, 140, 85, 255)
-TENT_D = (30, 100, 60, 255)
-EYE    = (245, 245, 250, 255)
-PUP    = (25, 25, 40, 255)
-CLEAR  = (0, 0, 0, 0)
+G    = (58, 168, 104, 255)   # mantle
+G_D  = (34, 116, 70, 255)    # shade / chromatophore mottle
+G_L  = (122, 216, 152, 255)  # highlight
+T    = (48, 150, 90, 255)    # tentacle
+T_D  = (30, 104, 62, 255)    # tentacle tip
+MET  = (158, 163, 174, 255)  # cyberware metal
+MET_D = (96, 101, 114, 255)
+CY   = (95, 215, 240, 255)   # cybernetic glow
+CY_C = (210, 248, 255, 255)  # glow core
+EYE  = (243, 243, 249, 255)
+PUP  = (20, 25, 35, 255)
+CLEAR = (0, 0, 0, 0)
 
 
-def new_buf():
-    return [CLEAR] * (W * H)
+class C:
+    def __init__(self):
+        self.buf = [CLEAR] * (W * H)
+
+    def put(self, x, y, c):
+        x = int(round(x)); y = int(round(y))
+        if 0 <= x < W and 0 <= y < H and c[3] > 0:
+            self.buf[y * W + x] = c
+
+    def rect(self, x0, y0, x1, y1, c):
+        for y in range(y0, y1 + 1):
+            for x in range(x0, x1 + 1):
+                self.put(x, y, c)
+
+    def ellipse(self, cx, cy, rx, ry, col, outline=None):
+        for y in range(H):
+            for x in range(W):
+                v = ((x + 0.5 - cx) / rx) ** 2 + ((y + 0.5 - cy) / ry) ** 2
+                if v <= 1.0:
+                    self.put(x, y, col)
+                elif outline and v <= 1.32:
+                    self.put(x, y, outline)
 
 
-def put(buf, x, y, c):
-    if 0 <= x < W and 0 <= y < H:
-        buf[y * W + x] = c
+def arm(c, bx, by, tx, ty):
+    n = int(max(abs(tx - bx), abs(ty - by), 1))
+    for s in range(n + 1):
+        t = s / n
+        x = bx + (tx - bx) * t
+        y = by + (ty - by) * t
+        col = T if t < 0.55 else T_D
+        c.put(x, y, col)
+        if t < 0.45:            # a touch thicker near the base
+            c.put(x + 1, y, col)
 
 
-def disc(buf, cx, cy, r, col, outline):
-    for y in range(H):
-        for x in range(W):
-            d = math.hypot(x + 0.5 - cx, y + 0.5 - cy)
-            if d <= r:
-                buf[y * W + x] = col
-            elif d <= r + 1.2:
-                buf[y * W + x] = outline
+def tentacles(c, frame):
+    cx = 16.0
+    for i in range(8):
+        spread = i - 3.5                    # -3.5 .. 3.5
+        bx = cx + spread * 1.4
+        by = 17
+        wig = (1 if (i + frame) % 2 == 0 else -1)
+        tx = cx + spread * 3.5 + wig
+        ty = 25 + abs(spread) * 0.7
+        arm(c, bx, by, tx, ty)
 
 
-def body(buf):
-    cx, cy, r = 16.0, 13.0, 9.0
-    disc(buf, cx, cy, r, BODY, BODY_D)
-    # soft top-left highlight
-    for y in range(H):
-        for x in range(W):
-            d = math.hypot(x + 0.5 - cx, y + 0.5 - cy)
-            if d <= r - 3 and (x + 0.5 - cx) < -1 and (y + 0.5 - cy) < -1:
-                buf[y * W + x] = BODY_L
+def mantle(c):
+    c.ellipse(16, 11, 8, 9, G, G_D)
+    # top-left highlight
+    for (x, y) in [(12, 5), (13, 5), (12, 6), (11, 7)]:
+        c.put(x, y, G_L)
+    # chromatophore mottle
+    for (x, y) in [(19, 6), (14, 8), (20, 10), (12, 10)]:
+        c.put(x, y, G_D)
 
 
-def tentacles(buf, frame):
-    bases = [9, 13, 19, 23]
-    for i, bx in enumerate(bases):
-        sway = 1 if ((i + frame) % 2 == 0) else -1
-        for yy in range(20, 28):
-            off = sway * (yy - 23) if yy >= 24 else 0
-            x = bx + off
-            col = TENT_D if yy >= 26 else TENT
-            put(buf, x, yy, col)
-            put(buf, x + 1, yy, col)
+def cyberware(c):
+    # cortical / mesh port on the crown of the mantle
+    c.rect(15, 2, 17, 3, MET)
+    c.put(16, 2, CY_C)
+    # circuit trace down the mantle
+    for (x, y) in [(16, 4), (16, 5), (15, 6), (19, 7), (19, 8)]:
+        c.put(x, y, CY)
 
 
-def eye(buf, cx, cy, pdx, pdy):
-    for dy in range(-1, 2):
-        for dx in range(-1, 2):
-            put(buf, cx + dx, cy + dy, EYE)
-    put(buf, cx + pdx, cy + pdy, PUP)
+def organic_eye(c, ex, ey):
+    for dy in (-1, 0, 1):
+        c.rect(ex - 1, ey + dy, ex + 1, ey + dy, EYE)
+    c.rect(ex - 1, ey, ex + 1, ey, PUP)     # horizontal slit pupil
 
 
-def eyes(buf, d):
+def cyber_eye(c, ex, ey):
+    for dy in (-1, 0, 1):
+        c.rect(ex - 1, ey + dy, ex + 1, ey + dy, CY)
+    c.put(ex, ey, CY_C)                      # bright optic core
+    c.put(ex, ey - 2, MET_D)                 # housing
+
+
+def eyes(c, d):
+    # one organic cephalopod eye + one cybernetic optic (the cyborg tell)
     if d == "down":
-        eye(buf, 12, 14, 0, 1); eye(buf, 20, 14, 0, 1)
+        organic_eye(c, 12, 12); cyber_eye(c, 20, 12)
     elif d == "up":
-        eye(buf, 12, 11, 0, -1); eye(buf, 20, 11, 0, -1)
+        c.rect(12, 8, 20, 9, G_D)            # back of the mantle
+        c.put(13, 8, CY); c.put(19, 8, CY)   # rear sensor dots
     elif d == "left":
-        eye(buf, 11, 14, -1, 0); eye(buf, 16, 14, -1, 0)
+        cyber_eye(c, 11, 12); organic_eye(c, 16, 12)
     elif d == "right":
-        eye(buf, 16, 14, 1, 0); eye(buf, 21, 14, 1, 0)
+        organic_eye(c, 15, 12); cyber_eye(c, 20, 12)
 
 
-def write_png(path, buf):
+def write_png(path, c):
     def chunk(typ, data):
         return (struct.pack(">I", len(data)) + typ + data
                 + struct.pack(">I", zlib.crc32(typ + data) & 0xffffffff))
     raw = bytearray()
     for y in range(H):
-        raw.append(0)  # filter: none
+        raw.append(0)
         for x in range(W):
-            raw += bytes(buf[y * W + x])
+            raw += bytes(c.buf[y * W + x])
     out = b"\x89PNG\r\n\x1a\n"
     out += chunk(b"IHDR", struct.pack(">IIBBBBB", W, H, 8, 6, 0, 0, 0))
     out += chunk(b"IDAT", zlib.compress(bytes(raw), 9))
@@ -102,12 +141,13 @@ def main():
     os.makedirs(out_dir, exist_ok=True)
     for d in ("down", "up", "left", "right"):
         for fr in (0, 1):
-            buf = new_buf()
-            body(buf)
-            tentacles(buf, fr)
-            eyes(buf, d)
-            write_png(os.path.join(out_dir, f"{d}_{fr}.png"), buf)
-            print("wrote", d, fr)
+            c = C()
+            tentacles(c, fr)     # arms behind the mantle
+            mantle(c)
+            cyberware(c)
+            eyes(c, d)
+            write_png(os.path.join(out_dir, f"{d}_{fr}.png"), c)
+    print("wrote cyborg octomorph: 4 dirs x 2 frames")
 
 
 if __name__ == "__main__":

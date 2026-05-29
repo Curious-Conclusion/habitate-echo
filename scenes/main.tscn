@@ -195,24 +195,28 @@ process_mode = 3
 position = Vector2(100, 420)
 prompt_text = "[E] Sample Locker"
 visual_color = Color(0.9, 0.8, 0.2, 1)
+sprite_path = "res://art/objects/locker.png"
 
 [node name="Terminal" parent="." unique_id=776027766 instance=ExtResource("7_tipki")]
 position = Vector2(480, 119)
 prompt_text = "[E] Terminal"
 visual_color = Color(0.2, 0.8, 0.9, 1)
+sprite_path = "res://art/objects/terminal.png"
 
 [node name="AirlockControl" parent="." unique_id=1657881812 instance=ExtResource("7_tipki")]
 position = Vector2(480, 361)
 prompt_text = "[E] Airlock Control"
 visual_color = Color(0.9, 0.5, 0.1, 1)
+sprite_path = "res://art/objects/airlock.png"
 
 [node name="LoreTerminal" parent="." unique_id=485646478 instance=ExtResource("7_tipki")]
 position = Vector2(260, 60)
 prompt_text = "[E] Data Pad"
 visual_color = Color(0.3, 0.7, 0.3, 1)
+sprite_path = "res://art/objects/datapad.png"
 
 [node name="CrewNPC" parent="." instance=ExtResource("7_tipki")]
-position = Vector2(812, 240)
+position = Vector2(942, 432)
 prompt_text = "[E] Talk"
 visual_color = Color(0.86, 0.62, 0.5, 1)
 sprite_path = "res://art/npc/crew.png"
@@ -226,11 +230,13 @@ position = Vector2(420, 180)
 position = Vector2(560, 60)
 prompt_text = "[E] Maintenance Hatch"
 visual_color = Color(0.45, 0.5, 0.55, 1)
+sprite_path = "res://art/objects/hatch.png"
 
 [node name="Autodoc" parent="." unique_id=1402180935 instance=ExtResource("7_tipki")]
 position = Vector2(60, 300)
 prompt_text = "[E] Med Autodoc"
 visual_color = Color(0.2, 0.8, 0.53333336, 1)
+sprite_path = "res://art/objects/autodoc.png"
 
 [node name="GlitchLayer" type="CanvasLayer" parent="." unique_id=966877478]
 layer = 50

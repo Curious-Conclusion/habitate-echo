@@ -67,9 +67,12 @@ to complete a mission while avoiding a hostile nanite swarm.
   `player.gd._build_morph_frames` loads per-morph art (falls back to the old
   procedural blobs for any morph without art); `nanite_swarm.gd` loads the swarm
   PNGs; `interactable.gd` gained an optional `sprite_path` (used by CrewNPC).
-  Loaders use `Image.load` fallback so they work pre-import. **Interactable
-  objects (hatch/autodoc/terminal/pod/locker/device/data pad) are still colored
-  squares** — next art target.
+  Loaders use `Image.load` fallback so they work pre-import. The 6 generic
+  interactables (hatch, autodoc, terminal, locker, airlock, data pad) now use
+  object sprites from `art/objects/` (via `gen_objects.py`) through
+  `interactable.gd`'s `sprite_path`. **Still colored squares:** the Resleeving
+  Pod (`resleeving_pod.tscn`) and Suspicious Device (`scannable_device.tscn`) —
+  separate scenes that need their own sprite hookup.
 
 ---
 

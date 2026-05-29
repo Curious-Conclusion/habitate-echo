@@ -115,6 +115,11 @@ HAIR = (58, 40, 30, 255)
 IMPLANT = (150, 210, 235, 255)
 
 
+GLOW = (95, 215, 240, 255)     # cybernetic glow (eyes, circuitry)
+GLOW_C = (205, 248, 255, 255)
+CAP = (44, 48, 62, 255)        # neural cap / synthskull
+
+
 def biomorph(direction, frame):
     c = C(32, 32)
     # legs
@@ -125,25 +130,36 @@ def biomorph(direction, frame):
     # arms
     c.rect(9, 14, 11, 21, SUIT)
     c.rect(21, 14, 23, 21, SUIT)
-    # torso
+    # sleek bodysuit: torso + glowing collar + chest seam
     c.rect(12, 13, 20, 23, SUIT)
-    c.rect(12, 13, 20, 14, (220, 130, 80, 255))
+    c.rect(12, 13, 20, 14, (225, 140, 90, 255))
+    c.rect(13, 13, 19, 13, GLOW)                     # collar light
+    for yy in (16, 18, 20):
+        c.put(16, yy, GLOW)                          # chest seam nodes
     # head
     c.disc(16, 9, 5, SKIN, SKIN_D)
-    # hair cap
-    c.rect(12, 4, 20, 6, HAIR)
-    c.put(11, 6, HAIR); c.put(21, 6, HAIR)
-    # cyberbrain implant on the temple
-    c.put(20, 8, IMPLANT); c.put(20, 9, IMPLANT)
-    # eyes by facing
+    # neural cap (replaces hair) with a circuit line
+    c.rect(12, 4, 20, 6, CAP)
+    c.put(11, 6, CAP); c.put(21, 6, CAP)
+    c.rect(13, 5, 19, 5, GLOW)
+    # cyberbrain implant plate at the temple
+    c.rect(20, 7, 20, 10, GLOW)
+    c.put(19, 8, GLOW_C)
+
+    def glow_eye(cx, cy):
+        c.rect(cx - 1, cy, cx + 1, cy, GLOW)
+        c.put(cx, cy, GLOW_C)
+
+    # glowing optics by facing
     if direction == "down":
-        eye(c, 14, 10, 0, 1, big=True); eye(c, 18, 10, 0, 1, big=True)
+        glow_eye(14, 10); glow_eye(18, 10)
     elif direction == "up":
-        c.rect(13, 8, 15, 9, HAIR); c.rect(17, 8, 19, 9, HAIR)  # back of head
+        c.rect(12, 7, 20, 8, CAP)            # back of synthskull
+        c.rect(13, 8, 19, 8, GLOW)           # nape circuit
     elif direction == "left":
-        eye(c, 13, 10, -1, 0, big=True)
+        glow_eye(13, 10)
     elif direction == "right":
-        eye(c, 19, 10, 1, 0, big=True)
+        glow_eye(19, 10)
     return c
 
 
@@ -156,25 +172,34 @@ N_SKIN = (228, 180, 150, 255)
 
 
 def npc():
+    """A frightened crew member huddled inside an open supply crate, peeking out."""
+    CRATE = (112, 118, 128, 255)
+    CRATE_D = (66, 71, 82, 255)
+    CRATE_L = (152, 158, 168, 255)
+    INSIDE = (34, 36, 44, 255)
+    HAIR = (40, 35, 45, 255)
+    BROW = (120, 70, 70, 255)
     c = C(32, 32)
-    # legs (huddled, short)
-    c.rect(13, 25, 15, 29, N_SUIT_D)
-    c.rect(17, 25, 19, 29, N_SUIT_D)
-    # torso, hunched (a little lower/wider)
-    c.rect(11, 15, 21, 25, N_SUIT)
-    c.rect(11, 15, 21, 16, (95, 160, 172, 255))
-    # arms raised toward face (defensive)
-    c.rect(9, 11, 11, 18, N_SKIN)
-    c.rect(21, 11, 23, 18, N_SKIN)
-    # head
-    c.disc(16, 10, 5, N_SKIN, (185, 140, 112, 255))
-    # hair
-    c.rect(12, 5, 20, 7, (40, 35, 45, 255))
-    # wide, worried eyes
-    eye(c, 14, 11, 0, 1, big=True)
-    eye(c, 18, 11, 0, 1, big=True)
-    # small frown
-    c.put(15, 14, (120, 70, 70, 255)); c.put(16, 14, (120, 70, 70, 255))
+    # supply crate (occupies the lower half)
+    c.rect(5, 14, 26, 30, CRATE)
+    c.rect(5, 14, 26, 15, CRATE_L)         # top lid rim
+    for x0 in range(5, 27):                # outline
+        c.put(x0, 30, CRATE_D)
+    for y0 in range(14, 31):
+        c.put(5, y0, CRATE_D); c.put(26, y0, CRATE_D)
+    for sx in (11, 16, 21):                # slat seams
+        c.rect(sx, 17, sx, 29, CRATE_D)
+    # dark interior the crew member is crouched in
+    c.rect(11, 14, 20, 17, INSIDE)
+    # head peeking over the rim
+    c.disc(16, 10, 4, N_SKIN, (185, 140, 112, 255))
+    c.rect(12, 5, 20, 8, HAIR)             # hair
+    eye(c, 14, 10, 0, 1, big=True)         # wide, worried eyes
+    eye(c, 18, 10, 0, 1, big=True)
+    c.put(15, 13, BROW); c.put(16, 13, BROW)   # frown
+    # hands gripping the crate rim
+    c.rect(9, 14, 11, 15, N_SKIN)
+    c.rect(21, 14, 23, 15, N_SKIN)
     return c
 
 
