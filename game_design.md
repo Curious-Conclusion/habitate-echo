@@ -1,99 +1,140 @@
 # Habitat Echo — Game Design Document
 
-A tiny Eclipse Phase fan game demo built in Godot 4.
+An Eclipse Phase fan game built in Godot 4.6. A **mission-hub** survival-horror:
+you are a Firewall sentinel who egocasts into morphs at compromised sites to
+contain async/exsurgent threats, returning to a safehouse between self-contained
+ops.
 
-## Concept
+_This doc is the snapshot of what's **implemented**. The forward-looking plan is
+in `DESIGN_OUTLINE.md`; session continuity in `HANDOFF.md`._
 
-The player is a Firewall sentinel investigating a suspect cortical stack
-inside a small orbital habitat module. A dormant async threat lurks in the
-station network. The player must resleeve into different morphs to bypass
-obstacles, complete the mission objectives, and survive a hostile nanite
-swarm before it overwhelms them.
+## Structure
 
-## Setting
+A persistent **hub** (safehouse) you mesh into between **ops** (self-contained
+missions at distinct sites). Scene flow:
 
-- **Perspective:** 2D top-down
-- **Map:** A single pressurised habitat room with a resleeving pod, a
-  scannable device, and roaming nanite hazard.
+```
+title → (New Game) → Op 0 (KE-7) → debrief → hub ⇄ deploy op ⇄ debrief → hub
+        (Continue) → load save → hub
+```
 
-## Morphs
+Boot scene is `scenes/title.tscn` (New Game / Continue / Quit).
 
-The player's ego occupies one morph at a time. Switching happens at the
-resleeving pod by pressing **Interact (E)**, which opens the morph-select
-UI. Stats below are as implemented in `scripts/morph_manager.gd`.
+## Autoloads (`project.godot`)
 
-| Morph      | Speed | Max Health | Ability      | Use                          |
-|------------|-------|------------|--------------|------------------------------|
-| Octomorph  | 150   | 80         | Wall-cling   | Default starting morph; fast |
-| Synth      | 120   | 150        | Vacuum-seal  | Durable; survive the airlock |
-| Biomorph   | 170   | 100        | Cyberbrain   | Interface with the terminal  |
+| Autoload       | Role |
+|----------------|------|
+| `GameState`    | Persistent cross-op state: moxie, trauma, reputation, credits, morph roster, gear, intel, op progress/flags, difficulty. JSON save/load, op-start checkpoint, ego-death fork. |
+| `SceneFlow`    | hub⇄op⇄debrief transitions; `go_to_hub` / `deploy_op` / `begin_op` / `ego_death_fork`; checkpoint-on-deploy. |
+| `OpCatalog`    | Registry of ops (`Op` resources): id, scene, objectives, briefing/debrief, credit reward. |
+| `GearCatalog`  | Registry of buyable consumable gear. |
+| `MorphManager` | Morph data + current morph. |
+| `MissionManager` | Objectives for the op in progress, armed from the current `Op`. |
 
-The starting morph is the **Octomorph**.
+## Morphs (`scripts/morph_manager.gd`)
 
-## Player Controls
+Switching happens at a resleeving pod (E → morph-select UI), costing 15 Moxie in
+the field; free at the hub's resleeving bay.
 
-Only two input actions are defined (`project.godot`):
+| Morph     | Speed | HP  | Ability     | Field use                         |
+|-----------|-------|-----|-------------|-----------------------------------|
+| Octomorph | 150   | 80  | Wall-cling  | Reach tight/hidden spaces; fast   |
+| Synth     | 120   | 150 | Vacuum-seal | Survive vacuum/airlock sections   |
+| Biomorph  | 170   | 100 | Cyberbrain  | Hack / interface terminals        |
 
-| Input          | Action                                   |
-|----------------|------------------------------------------|
-| WASD / Arrows  | Move (8-direction)                       |
-| E              | Interact — pick up, scan, resleeve, talk |
+Default starting morph: **Octomorph**. Each morph's **Moxie burn** (F, −30)
+differs: Octomorph scramble (2× speed + i-frames), Synth EMP (clears swarms),
+Biomorph medichine surge (full heal).
 
-Resleeving, dialogue, and device scanning are all driven by the single
-Interact action.
+## Controls (`project.godot`)
 
-## Core Loop
+| Input         | Action                                       |
+|---------------|----------------------------------------------|
+| WASD / Arrows | Move (8-direction)                           |
+| E             | Interact — pick up, scan, resleeve, talk     |
+| F             | Moxie burn (morph-dependent power, −30)       |
+| G             | Use field gear (carried consumables)          |
 
-1. Explore the room and read environmental clues.
-2. Walk to the resleeving pod and switch into the morph whose ability
-   fits the current obstacle.
-3. Use that morph's trait to advance an objective.
-4. Avoid or outrun the nanite swarm while doing so.
+## Ego / Moxie / trauma
 
-## Objectives
+Moxie is the real health bar — it **persists between ops** (the morph body is
+disposable). Below the derangement threshold (35) control slows and a red glitch
+wash flickers (`glitch_overlay.gd`). At Moxie 0 on death, ego death triggers the
+**lose-continuity fork**: restore an older backup (op restarts), keep mechanical
+progress (roster/gear/intel), gain a persistent **trauma** and a continuity
+break. Psychosurgery at the hub restores Moxie and clears trauma.
 
-Tracked in `scripts/mission_manager.gd`:
+## The hub (`scenes/hub.tscn`)
 
-1. **Retrieve the cortical stack** (`retrieve_stack`).
-2. **Scan the stack** at the terminal (`scan_stack`) — requires the
-   Biomorph's cyberbrain ability.
-3. **Vent the async signal** through the airlock (`vent_signal`) —
-   requires the Synth's vacuum-seal ability.
+Six interactable stations:
 
-## Win Condition
+- **Op board** — pick an op → deploy (lists all `OpCatalog` ops, marks resolved).
+- **Resleeving bay** — set morph loadout (free, no stress cost).
+- **Quartermaster** — buy consumable gear with credits (slots: 4).
+- **Psychosurgery** — restore Moxie, clear one trauma.
+- **Handler** — branching dialogue / lore.
+- **Debrief terminal** — recap rep, credits, ops resolved, continuity breaks, trauma.
 
-Complete all three objectives. A Firewall debrief / end screen confirms
-mission success.
+## Gear (`scripts/gear_catalog.gd`, `field_gear.gd`)
 
-## Fail State
+Consumables bought at the quartermaster (max 4 carried), used in the field with
+**G**:
 
-The habitat is patrolled by a **nanite swarm** (`scripts/nanite_swarm.gd`)
-that chases the player, deals periodic damage, and drains Moxie on contact.
-If the current morph's health is depleted the player dies; the player then
-respawns (a resleeve), and the swarm pauses while the player is dead.
+| Gear            | Cost | Effect                                   |
+|-----------------|------|------------------------------------------|
+| Medichine Dose  | 20   | Heal HP + restore Moxie                  |
+| EMP Charge      | 25   | Disperse all nanite swarms on the site   |
+| Panic Farcaster | 40   | Emergency egocast back to the safehouse  |
 
-## Moxie / Stress
+Credits are awarded once per op on first completion (`Op.reward_credits`).
 
-The player tracks a Moxie value, reduced by nanite contact and surfaced via
-a Moxie bar UI (`scripts/moxie_bar.gd`). Health is shown via an HP bar
-(`scripts/hp_bar.gd`).
+## Ops (sites)
 
-## Art & Audio (Placeholder)
+Each op is a hand-built scene assembled on the shared template (briefing →
+deploy/resleeve → infiltrate → investigate → complicate → contain → extract →
+debrief). Registered in `OpCatalog`; objectives armed via `MissionManager`.
 
-- Morphs and the nanite swarm currently use procedurally generated
-  placeholder textures (colored blobs) until real sprites exist.
-- No audio yet.
+### Op 0 — KE-7 habitat (`scenes/main.tscn`, onboarding)
+
+Retrieve a hidden cortical stack (Octomorph wall-cling) → scan it at a terminal
+(Biomorph cyberbrain → hacking minigame, or skip via a crew NPC override) → vent
+the async signal through the airlock (Synth vacuum-seal). A nanite swarm threatens
+throughout. Reward: 40 cr.
+
+### Op 1 — Derelict hauler (`scenes/op_hauler.tscn`)
+
+Board a powerless, hull-breached freighter. Read the data log → resleeve to Synth
+→ cross the **vacuum-breached hold** (`vacuum_zone.gd` drains HP/Moxie unless
+vacuum-sealed) → recover a stranded ego (`recover_ego`) → reach the egocast point
+(`extract`). Light async swarm. Reward: 55 cr.
+
+## Threats
+
+Nanite swarms (`nanite_swarm.gd`) chase the player, dealing periodic damage and
+Moxie drain; EMP-able and cleared on death. Vacuum sections damage non-sealed
+morphs over time. Threat budget per op is deliberately scarce — fear comes from
+limited Moxie/medichines and morph constraints, not enemy count.
+
+## Save model
+
+Hub + op-start checkpoint: GameState is saved on hub entry and on deploy. Death
+restarts the op (no mid-op saves). Continue loads the save and resumes at the hub.
+
+## Art & Audio
+
+- Original pixel sprites for morphs, the crew NPC, the swarm, and interactable
+  objects (`art/`, generated by the `gen_*.py` scripts). Hub/hauler stations and
+  a few objects use colored-square placeholders.
+- A procedural resleeve SFX; otherwise no audio yet.
 
 ## License
 
-> Habitat Echo is a fan work set in the **Eclipse Phase** universe created
-> by Posthuman Studios LLC. Eclipse Phase is released under
-> **CC BY-NC-SA**.
+> Habitat Echo is a fan work set in the **Eclipse Phase** universe created by
+> Posthuman Studios LLC, released under **CC BY-NC-SA**.
 >
-> This project is **dual-licensed**: source code under the
-> **PolyForm Noncommercial License 1.0.0** (`LICENSE-CODE`), and assets and
-> prose under **CC BY-NC-SA 4.0** (`LICENSE-ASSETS`). See `LICENSE` for the
-> full scope breakdown.
+> Dual-licensed: source code under the **PolyForm Noncommercial License 1.0.0**
+> (`LICENSE-CODE`), assets and prose under **CC BY-NC-SA 4.0** (`LICENSE-ASSETS`).
+> See `LICENSE` for the full scope breakdown.
 >
-> Eclipse Phase is a trademark of Posthuman Studios LLC. This fan game is
-> not affiliated with or endorsed by Posthuman Studios.
+> Eclipse Phase is a trademark of Posthuman Studios LLC. This fan game is not
+> affiliated with or endorsed by Posthuman Studios.

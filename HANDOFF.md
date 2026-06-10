@@ -52,11 +52,47 @@ hub. A light async swarm spawns on stack retrieval. Verified: morph-gating (Synt
 required), vacuum damage (8/tick non-sealed, 0 sealed), extract gating, full
 hub→Op1→hub loop, both ops listed on the board.
 
-**Next (roadmap in `DESIGN_OUTLINE.md §8`):** gear/loadout system (Phase 4);
-the info-hazard + ethics branch op (Act 1 Op 2); a title/menu scene that calls
-`GameState.load_game()` for "Continue" (nothing reads the save on startup yet —
-saves are written but never loaded); and difficulty actually scaling threat
-pacing (the `GameState.difficulty` field exists but isn't read by ops yet).
+**Built engine-free (code-complete, ⚠️ NOT yet verified live — the engine was
+in use with another game). Verify these first next engine session:**
+
+- **Gear/loadout system.** `GameState` gained `credits` + a 4-slot `gear`
+  loadout (`award_credits` / `buy_gear` / `consume_gear`, persisted in the
+  save). Ops award `Op.reward_credits` once on first completion (KE-7: 40,
+  hauler: 55). New `GearCatalog` autoload (medichine 20cr = heal+Moxie,
+  emp_charge 25cr = clear swarms, panic_farcaster 40cr = bail to hub). The hub
+  quartermaster is a working shop; `scenes/field_gear.tscn` (+`field_gear.gd`)
+  is instanced in both op scenes — **[G]** (new `use_gear` input) opens the
+  quick-use panel.
+- **Title screen** (`scenes/title.tscn` + `title.gd`) is now the **project main
+  scene**: New Game → `reset_new_game()` → deploy Op 0; Continue →
+  `GameState.load_game()` → hub (disabled with no save). Saves finally load.
+- **Save/load bug fixed:** JSON stringifies dict keys, and Godot 4 treats
+  String vs StringName keys as distinct — `op_flags` lookups would silently
+  miss after `load_game()`. `_deserialize` now rebuilds the dict with
+  StringName keys.
+- **Sprite art pass** (pure-Python, `art/gen_station_objects.py` → 9 new PNGs
+  in `art/objects/`): pod, device, op_board, fabber, psycho, comm, debrief,
+  stack, relay. Wired via `sprite_path` into the 6 hub stations, the 3 hauler
+  objects, `resleeving_pod.tscn`, and `scannable_device.tscn` (those two
+  scripts gained the same optional sprite loader `interactable.gd` has). No
+  colored-square interactables remain.
+- **Docs:** `game_design.md` rewritten to the current architecture;
+  `site_halcyon_layout.md` added — the Act 2 multi-deck station design
+  (3 decks + spine, hunter, containment-decision climax).
+
+**Verification checklist for next engine session:** title → New Game → KE-7
+deploys; complete an op → credits awarded (debrief shows them); quartermaster
+buy; [G] panel + each gear effect (heal / EMP / farcaster mid-op); title →
+Continue resumes at hub with flags intact (exercises the op_flags fix); new
+sprites render everywhere. Note: invented uids in new .tscn files get
+rewritten by the editor on first import — expected churn, references resolve
+by path.
+
+**Next (roadmap in `DESIGN_OUTLINE.md §8`):** the info-hazard + ethics branch
+op (Act 1 Op 2); difficulty actually scaling threat pacing
+(`GameState.difficulty` exists but isn't read by ops yet); then the Act 2
+Halcyon site per `site_halcyon_layout.md` (needs `hunter.gd`, a generalized
+`hazard_zone.gd`, spine elevator/crawlway gating).
 
 ---
 
@@ -70,8 +106,10 @@ pacing (the `GameState.difficulty` field exists but isn't read by ops yet).
   Noncommercial 1.0.0, assets/prose = **CC BY-NC-SA 4.0** (ShareAlike kept to
   honor EP). Any new assets must be original; never drop ShareAlike.
 - **Autoloads** (`project.godot`, in order): `GameState`, `SceneFlow`,
-  `OpCatalog`, `MorphManager`, `MissionManager`, `_mcp_game_helper` (godot-ai).
-  Inputs: `move_up/down/left/right` (WASD+arrows), `interact` (E), `moxie_burn` (F).
+  `OpCatalog`, `GearCatalog`, `MorphManager`, `MissionManager`,
+  `_mcp_game_helper` (godot-ai). Inputs: `move_up/down/left/right`
+  (WASD+arrows), `interact` (E), `moxie_burn` (F), `use_gear` (G).
+  **Main scene is now `scenes/title.tscn`.**
 - **Git state:** commits on `main` = `1227c1c` (license) → `6720b19` (core
   gameplay) → `f7f3de5` (sprites). **Uncommitted:** interior walls
   (`interior_walls.gd` + wiring), `DESIGN_OUTLINE.md`, this handoff. Commit only
@@ -183,18 +221,24 @@ trust them:
 ```
 project.godot                  autoloads + input actions
 scenes/
-  main.tscn                    KE-7 op scene (= Op 0); also the bootstrap main scene
+  title.tscn                   boot scene: New Game / Continue / Quit
+  main.tscn                    KE-7 op scene (= Op 0)
   op_hauler.tscn               Op 1 — derelict hauler (vacuum hold, extract point)
   hub.tscn                     the Firewall safehouse (6 stations)
+  field_gear.tscn              [G] gear quick-use panel (instanced in op scenes)
   player.tscn, resleeving_pod.tscn, dialogue_box.tscn, interactable.tscn,
   scannable_device.tscn, end_screen.tscn (end_screen now unused — kept for a
                                possible future hard-fail; win→hub, death→fork)
 scripts/
-  game_state.gd (autoload)     persistent cross-op state, save/load, ego-death fork
+  game_state.gd (autoload)     persistent cross-op state + credits/gear, save/load,
+                               ego-death fork
   scene_flow.gd (autoload)     hub⇄op transitions, checkpoint-on-deploy
-  op.gd (class_name Op)         op metadata resource (id/scene/objectives/briefing)
+  op.gd (class_name Op)         op metadata resource (id/scene/objectives/reward)
   op_catalog.gd (autoload)     registers all ops; KE-7 = Op 0, hauler = Op 1
-  hub.gd                       safehouse station logic (reuses interactable+dialogue)
+  gear_catalog.gd (autoload)   buyable consumables (medichine/EMP/farcaster)
+  field_gear.gd                the [G] panel: list carried gear, consume, apply
+  title.gd                     New Game / Continue wiring
+  hub.gd                       safehouse station logic (incl. quartermaster shop)
   main.gd                      orchestrates KE-7; reads GameState/SceneFlow/OpCatalog
   op_hauler.gd                 orchestrates Op 1 (hauler); same patterns as main.gd
   vacuum_zone.gd               breach hazard: drains HP/Moxie unless VACUUM_SEAL
@@ -210,10 +254,12 @@ scripts/
   interior_walls.gd            procedural walls+doors (SEGMENTS table)
   resleeve_transition.gd, morph_select_ui.gd, hp_bar.gd, moxie_bar.gd, end_screen.gd
 art/
-  gen_octomorph.py, gen_characters.py, gen_objects.py   sprite generators
+  gen_octomorph.py, gen_characters.py, gen_objects.py,
+  gen_station_objects.py                                sprite generators
   octomorph/ synth/ biomorph/ npc/ swarm/ objects/      generated PNGs
 DESIGN_OUTLINE.md              the full plan (progression + action tree)
 game_design.md                 snapshot of current code (keep in sync)
+site_halcyon_layout.md         Act 2 multi-deck site design (not built yet)
 ```
 
 ---
@@ -239,6 +285,6 @@ game_design.md                 snapshot of current code (keep in sync)
   morphs, Moxie, hacking, swarm, walls, sprites) are done and verified; Phase 1 is
   mostly the **hub + meta/persistence layer** wrapping them.
 - Commit only when asked; keep `addons/godot_ai/` churn out of game commits.
-- The interactable system supports `sprite_path` — reuse it for hub stations.
-- Two interactables are still colored squares (Resleeving Pod, Suspicious Device)
-  — separate scenes; sprite them if doing an art pass.
+- The `sprite_path` pattern now covers `interactable.gd`, `resleeving_pod.gd`,
+  and `scannable_device.gd` — no colored-square interactables remain. New objects:
+  add a function to `art/gen_station_objects.py`, run it, set `sprite_path`.
