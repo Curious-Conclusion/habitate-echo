@@ -11,6 +11,8 @@ class_name Op
 ## Ordered objective ids the scene completes via MissionManager. Cleared and
 ## re-armed on each deploy, so ops are replayable.
 @export var objectives: Array[StringName] = []
+## Player-facing names for the objectives, same order (the HUD checklist).
+@export var objective_labels: Array[String] = []
 @export_multiline var briefing: Array[String] = []
 @export_multiline var debrief: Array[String] = []
 ## Salvage scrip awarded once, the first time the op is completed.

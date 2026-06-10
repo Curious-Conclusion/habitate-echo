@@ -14,6 +14,10 @@ func _register_ops() -> void:
 	ke7.scene_path = "res://scenes/main.tscn"
 	var objs: Array[StringName] = [&"retrieve_stack", &"scan_stack", &"vent_signal"]
 	ke7.objectives = objs
+	var obj_labels: Array[String] = [
+		"Retrieve the cortical stack", "Scan the stack", "Vent the async signal",
+	]
+	ke7.objective_labels = obj_labels
 	var briefing: Array[String] = [
 		"FIREWALL BRIEFING: Suspect async contamination detected.",
 		"The cortical stack was hidden in a Server Alcove crawlspace —",
@@ -36,6 +40,10 @@ func _register_ops() -> void:
 	hauler.scene_path = "res://scenes/op_hauler.tscn"
 	var h_objs: Array[StringName] = [&"recover_ego", &"extract"]
 	hauler.objectives = h_objs
+	var h_labels: Array[String] = [
+		"Recover the stranded ego", "Reach the egocast point",
+	]
+	hauler.objective_labels = h_labels
 	var h_briefing: Array[String] = [
 		"FIREWALL BRIEFING: A powerless hauler drifts off the lane, hull breached.",
 		"A crew ego — Petrov — is stranded on a cortical stack in the aft hold,",
@@ -59,6 +67,10 @@ func _register_ops() -> void:
 	lab.scene_path = "res://scenes/op_lab.tscn"
 	var l_objs: Array[StringName] = [&"recover_protocol", &"resolve_researcher", &"extract"]
 	lab.objectives = l_objs
+	var l_labels: Array[String] = [
+		"Recover the containment protocol", "Resolve Dr. Okafor", "Egocast out",
+	]
+	lab.objective_labels = l_labels
 	var l_briefing: Array[String] = [
 		"FIREWALL BRIEFING: The Aphelion exobiology lab went dark 47 days ago.",
 		"Dr. Okafor was developing an async containment protocol when the lab's",

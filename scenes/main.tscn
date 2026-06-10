@@ -16,6 +16,7 @@
 [ext_resource type="Script" path="res://scripts/interior_walls.gd" id="14_walls"]
 [ext_resource type="PackedScene" uid="uid://c4fieldgear8echo" path="res://scenes/field_gear.tscn" id="15_gear"]
 [ext_resource type="PackedScene" uid="uid://c5whispers8echo" path="res://scenes/whispers.tscn" id="16_whisp"]
+[ext_resource type="PackedScene" uid="uid://c6objhud8echo" path="res://scenes/objective_hud.tscn" id="17_objhud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sgp6g"]
 size = Vector2(1000, 8)
@@ -261,3 +262,5 @@ script = ExtResource("13_hack")
 [node name="FieldGear" parent="." instance=ExtResource("15_gear")]
 
 [node name="Whispers" parent="." instance=ExtResource("16_whisp")]
+
+[node name="ObjectiveHud" parent="." instance=ExtResource("17_objhud")]

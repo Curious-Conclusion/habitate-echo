@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://c6objhud8echo"]
+
+[ext_resource type="Script" path="res://scripts/objective_hud.gd" id="1_oh"]
+
+[node name="ObjectiveHud" type="CanvasLayer"]
+script = ExtResource("1_oh")
+
+[node name="ObjectivesLabel" type="Label" parent="."]
+offset_left = 10.0
+offset_top = 36.0
+offset_right = 320.0
+offset_bottom = 110.0
+theme_override_font_sizes/font_size = 13
+modulate = Color(1, 1, 1, 0.75)

@@ -92,7 +92,13 @@ in use with another game). Verify these first next engine session:**
   `researcher_saved`; cull: free but a sticky `executioners_echo` trauma,
   `researcher_culled`). The hub handler's "situation" line reacts to the flag.
 - **Whispers** (`whispers.gd/tscn`, instanced in all three ops): intrusive
-  lines fade in at irregular intervals while deranged.
+  lines fade in at irregular intervals while deranged. **Traumas carry their
+  own voices**: per-trauma line pools (fork_dissonance, executioners_echo) mix
+  into the deranged chorus AND surface alone at merely-shaken Moxie (<55) —
+  carrying a trauma whispers even when you're "fine"; psychosurgery silences it.
+- **Objectives HUD** (`objective_hud.gd/tscn`, instanced in all three ops):
+  always-visible checklist under the zone label, driven by new
+  `Op.objective_labels` + `MissionManager.objective_completed`.
 - **Difficulty → pacing**: `GameState.swarm_count()` / `hazard_moxie_mult()`;
   all ops' spawns route through them. **Progressive unlocks**: `Op.unlock_after`
   hides ops on the board until the prerequisite is resolved (ke7 → hauler → lab).
@@ -111,9 +117,10 @@ sprites render everywhere; **extract beat shows dialogue then debrief then hub
 (the hang fix) in hauler AND lab**; op board shows hauler only after KE-7, lab
 only after hauler; whispers appear when deranged and stop when stable; lab:
 both archive wrong-reads, the crawl note, both Okafor resolutions (+ handler
-echo at hub, trauma after cull clears at psychosurgery). Note: invented uids
-in new .tscn files get rewritten by the editor on first import — expected
-churn, references resolve by path.
+echo at hub, trauma after cull clears at psychosurgery); objectives HUD ticks
+as objectives complete; trauma-only whispers at Moxie ~50 while carrying one.
+Note: invented uids in new .tscn files get rewritten by the editor on first
+import — expected churn, references resolve by path.
 
 **Next (roadmap in `DESIGN_OUTLINE.md §8`):** the info-hazard + ethics branch
 op (Act 1 Op 2); difficulty actually scaling threat pacing
