@@ -50,7 +50,32 @@ func _register_ops() -> void:
 	]
 	hauler.debrief = h_debrief
 	hauler.reward_credits = 55
+	hauler.unlock_after = &"ke7"
 	_add(hauler)
+
+	var lab := Op.new()
+	lab.id = &"lab"
+	lab.title = "Threshold — Aphelion research lab (info-hazard)"
+	lab.scene_path = "res://scenes/op_lab.tscn"
+	var l_objs: Array[StringName] = [&"recover_protocol", &"resolve_researcher", &"extract"]
+	lab.objectives = l_objs
+	var l_briefing: Array[String] = [
+		"FIREWALL BRIEFING: The Aphelion exobiology lab went dark 47 days ago.",
+		"Dr. Okafor was developing an async containment protocol when the lab's",
+		"own archive turned info-hazardous. Recover the protocol — WITHOUT",
+		"reading anything else — and resolve whatever is left of Okafor.",
+		"How you resolve her is, regrettably, at your discretion.",
+	]
+	lab.briefing = l_briefing
+	var l_debrief: Array[String] = [
+		"The Aphelion files are in Firewall's hands. The lab goes back to being",
+		"a dark spot on the charts — one more thing nobody talks about.",
+		"Egocasting back to the safehouse...",
+	]
+	lab.debrief = l_debrief
+	lab.reward_credits = 70
+	lab.unlock_after = &"hauler"
+	_add(lab)
 
 func _add(op: Op) -> void:
 	_ops[op.id] = op

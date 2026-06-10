@@ -199,6 +199,55 @@ def relay():
     return c
 
 
+def researcher():
+    """Dr. Okafor, infected — hunched figure, lab coat, one eye lit wrong."""
+    SKIN, COAT, COATD = (196, 168, 142, 255), (205, 210, 218, 255), (130, 136, 148, 255)
+    HAIR, EYE = (40, 34, 30, 255), (235, 60, 60, 255)
+    c = C()
+    c.rect(12, 14, 20, 27, COAT)                    # hunched body
+    c.border(12, 14, 20, 27, COATD)
+    c.rect(15, 16, 16, 26, COATD)                   # coat seam
+    c.rect(12, 8, 19, 14, SKIN)                     # head, tilted low
+    c.rect(12, 7, 19, 9, HAIR)
+    c.put(14, 11, (30, 26, 24, 255))                # dark eye
+    c.put(17, 11, EYE)                              # the wrong one
+    c.put(18, 11, EYE)
+    c.rect(10, 16, 11, 23, COAT)                    # arms hanging long
+    c.rect(21, 16, 22, 24, COAT)
+    c.put(10, 24, SKIN); c.put(22, 25, SKIN)        # hands a touch too low
+    return c
+
+
+def archive():
+    """Archive server rack — cold stack of drives, one status light wrong."""
+    B, BD, BL = (70, 95, 125, 255), (36, 50, 70, 255), (115, 145, 175, 255)
+    OK, BAD = (90, 220, 140, 255), (235, 70, 70, 255)
+    c = boxed(B, BD, BL, 8, 4, 23, 27)
+    for i, yy in enumerate((7, 11, 15, 19, 23)):    # drive sleds
+        c.rect(10, yy, 21, yy + 2, (52, 72, 96, 255))
+        c.border(10, yy, 21, yy + 2, BD)
+        c.put(20, yy + 1, BAD if i == 2 else OK)    # one light burns red
+    return c
+
+
+def specimen():
+    """Specimen tank — sickly fluid, a dark shape, a crack running through."""
+    GLASS, GLD = (120, 190, 170, 200), (60, 110, 96, 255)
+    FLUID, SHAPE = (62, 130, 96, 230), (24, 40, 30, 255)
+    BASE, CRACK = (88, 92, 104, 255), (210, 240, 230, 255)
+    c = C()
+    c.rect(10, 24, 21, 27, BASE)                    # base
+    c.border(10, 24, 21, 27, (50, 52, 60, 255))
+    c.rect(11, 5, 20, 23, FLUID)                    # tank
+    c.border(11, 5, 20, 23, GLD)
+    c.rect(12, 5, 19, 6, GLASS)                     # glass shine
+    c.rect(14, 11, 17, 19, SHAPE)                   # the shape
+    c.put(13, 14, SHAPE); c.put(18, 16, SHAPE)      # ...with protrusions
+    for x, y in ((12, 9), (13, 12), (14, 15), (14, 18), (15, 21)):  # crack
+        c.put(x, y, CRACK)
+    return c
+
+
 def main():
     out = os.path.join(os.path.dirname(__file__), "objects")
     os.makedirs(out, exist_ok=True)
@@ -206,6 +255,7 @@ def main():
         "pod": pod(), "device": device(), "op_board": op_board(),
         "fabber": fabber(), "psycho": psycho(), "comm": comm(),
         "debrief": debrief(), "stack": stack(), "relay": relay(),
+        "researcher": researcher(), "archive": archive(), "specimen": specimen(),
     }
     for name, c in sprites.items():
         write_png(os.path.join(out, f"{name}.png"), c)
