@@ -11,6 +11,7 @@
 [ext_resource type="Script" uid="uid://b2pwogun2gsue" path="res://scripts/moxie_bar.gd" id="9_moxie"]
 [ext_resource type="Script" uid="uid://cx0v4g35cj00s" path="res://scripts/glitch_overlay.gd" id="10_glitch"]
 [ext_resource type="Script" path="res://scripts/vacuum_zone.gd" id="11_vac"]
+[ext_resource type="PackedScene" uid="uid://c4fieldgear8echo" path="res://scenes/field_gear.tscn" id="12_gear"]
 
 [sub_resource type="RectangleShape2D" id="RectHWall"]
 size = Vector2(900, 8)
@@ -125,11 +126,11 @@ offset_bottom = 66.0
 horizontal_alignment = 2
 
 [node name="BurnHint" type="Label" parent="UI"]
-offset_left = 380.0
+offset_left = 300.0
 offset_top = 68.0
 offset_right = 630.0
 offset_bottom = 86.0
-text = "[F] Moxie Burn  (cost 30)"
+text = "[F] Moxie Burn  (30)   ·   [G] Gear"
 horizontal_alignment = 2
 
 [node name="MorphSelectUI" type="PanelContainer" parent="UI"]
@@ -199,13 +200,18 @@ color = Color(0.55, 0, 0.12, 0)
 position = Vector2(120, 60)
 prompt_text = "[E] Data Log"
 visual_color = Color(0.3, 0.7, 0.3, 1)
+sprite_path = "res://art/objects/datapad.png"
 
 [node name="CorticalStack" parent="." instance=ExtResource("7_int")]
 position = Vector2(220, 360)
 prompt_text = "[E] Cortical Stack"
 visual_color = Color(0.9, 0.8, 0.2, 1)
+sprite_path = "res://art/objects/stack.png"
 
 [node name="ExtractPoint" parent="." instance=ExtResource("7_int")]
 position = Vector2(670, 120)
 prompt_text = "[E] Egocast Point"
 visual_color = Color(0.2, 0.8, 0.9, 1)
+sprite_path = "res://art/objects/relay.png"
+
+[node name="FieldGear" parent="." instance=ExtResource("12_gear")]

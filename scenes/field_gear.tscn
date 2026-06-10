@@ -1,0 +1,31 @@
+[gd_scene load_steps=2 format=3 uid="uid://c4fieldgear8echo"]
+
+[ext_resource type="Script" path="res://scripts/field_gear.gd" id="1_fg"]
+
+[node name="FieldGear" type="CanvasLayer"]
+process_mode = 3
+script = ExtResource("1_fg")
+
+[node name="Panel" type="PanelContainer" parent="."]
+offset_left = 380.0
+offset_top = 180.0
+offset_right = 772.0
+offset_bottom = 380.0
+
+[node name="MarginContainer" type="MarginContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/MarginContainer"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "— Field Gear  [G] —"
+horizontal_alignment = 1
+
+[node name="ButtonBox" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2

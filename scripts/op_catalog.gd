@@ -27,6 +27,7 @@ func _register_ops() -> void:
 		"Your ego backup updates. Egocasting back to the safehouse...",
 	]
 	ke7.debrief = debrief
+	ke7.reward_credits = 40
 	_add(ke7)
 
 	var hauler := Op.new()
@@ -48,6 +49,7 @@ func _register_ops() -> void:
 		"Egocasting back to the safehouse...",
 	]
 	hauler.debrief = h_debrief
+	hauler.reward_credits = 55
 	_add(hauler)
 
 func _add(op: Op) -> void:

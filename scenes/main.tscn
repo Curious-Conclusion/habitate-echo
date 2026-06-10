@@ -14,6 +14,7 @@
 [ext_resource type="Script" uid="uid://cx0v4g35cj00s" path="res://scripts/glitch_overlay.gd" id="12_eb6dy"]
 [ext_resource type="Script" path="res://scripts/hacking_minigame.gd" id="13_hack"]
 [ext_resource type="Script" path="res://scripts/interior_walls.gd" id="14_walls"]
+[ext_resource type="PackedScene" uid="uid://c4fieldgear8echo" path="res://scenes/field_gear.tscn" id="15_gear"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sgp6g"]
 size = Vector2(1000, 8)
@@ -155,11 +156,11 @@ offset_bottom = 66.0
 horizontal_alignment = 2
 
 [node name="BurnHint" type="Label" parent="UI" unique_id=1229963877]
-offset_left = 380.0
+offset_left = 300.0
 offset_top = 68.0
 offset_right = 630.0
 offset_bottom = 86.0
-text = "[F] Moxie Burn  (cost 30)"
+text = "[F] Moxie Burn  (30)   ·   [G] Gear"
 horizontal_alignment = 2
 
 [node name="Player" parent="." unique_id=225571165 groups=["player"] instance=ExtResource("1_o5qli")]
@@ -255,3 +256,5 @@ color = Color(0.55, 0, 0.12, 0)
 
 [node name="HackingMinigame" type="CanvasLayer" parent="."]
 script = ExtResource("13_hack")
+
+[node name="FieldGear" parent="." instance=ExtResource("15_gear")]

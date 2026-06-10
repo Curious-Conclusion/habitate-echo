@@ -13,6 +13,8 @@ extends Node
 signal moxie_changed(current: int, maximum: int)
 signal trauma_changed(traumas: Array)
 signal continuity_broken(count: int)
+signal credits_changed(amount: int)
+signal gear_changed(gear: Array)
 
 const SAVE_PATH := "user://habitat_echo.save"
 const MAX_MOXIE := 100
@@ -27,9 +29,11 @@ var traumas: Array[StringName] = []        ## sticky derangements; psychosurgery
 var continuity_breaks: int = 0             ## ego-death forks accrued
 
 # --- Progression ---
+const MAX_GEAR_SLOTS := 4
 var firewall_rep: int = 0
+var credits: int = 0                        ## salvage scrip; earned from ops, spent at the fabber
 var unlocked_morphs: Array[StringName] = [&"octomorph", &"synth", &"biomorph"]
-var gear: Array[StringName] = []           ## loadout slots (Phase 4)
+var gear: Array[StringName] = []           ## carried consumables (gear ids; duplicates allowed)
 var intel: Array[StringName] = []          ## unlocked site maps / threat data
 
 # --- Op progress ---
@@ -68,6 +72,37 @@ func clear_trauma(trauma_id: StringName) -> void:
 func complete_op(op_id: StringName) -> void:
 	if not completed_ops.has(op_id):
 		completed_ops.append(op_id)
+		var op: Op = OpCatalog.get_op(op_id)
+		if op:
+			award_credits(op.reward_credits)
+
+# ---------------------------------------------------------------------------
+# Economy / gear
+# ---------------------------------------------------------------------------
+
+func award_credits(amount: int) -> void:
+	if amount <= 0:
+		return
+	credits += amount
+	credits_changed.emit(credits)
+
+## Buy a gear item into the loadout. Returns false if too poor or slots are full.
+func buy_gear(gear_id: StringName, cost: int) -> bool:
+	if credits < cost or gear.size() >= MAX_GEAR_SLOTS:
+		return false
+	credits -= cost
+	gear.append(gear_id)
+	credits_changed.emit(credits)
+	gear_changed.emit(gear)
+	return true
+
+## Consume one carried instance of a gear item. Returns false if none carried.
+func consume_gear(gear_id: StringName) -> bool:
+	if not gear.has(gear_id):
+		return false
+	gear.erase(gear_id)  # removes the first matching instance
+	gear_changed.emit(gear)
+	return true
 
 func is_op_complete(op_id: StringName) -> bool:
 	return completed_ops.has(op_id)
@@ -139,6 +174,7 @@ func reset_new_game() -> void:
 	traumas.clear()
 	continuity_breaks = 0
 	firewall_rep = 0
+	credits = 0
 	var starting_morphs: Array[StringName] = [&"octomorph", &"synth", &"biomorph"]
 	unlocked_morphs = starting_morphs
 	gear.clear()
@@ -154,6 +190,7 @@ func _serialize() -> Dictionary:
 		"traumas": _names_to_strings(traumas),
 		"continuity_breaks": continuity_breaks,
 		"firewall_rep": firewall_rep,
+		"credits": credits,
 		"unlocked_morphs": _names_to_strings(unlocked_morphs),
 		"gear": _names_to_strings(gear),
 		"intel": _names_to_strings(intel),
@@ -168,12 +205,20 @@ func _deserialize(d: Dictionary) -> void:
 	traumas = _strings_to_names(d.get("traumas", []))
 	continuity_breaks = int(d.get("continuity_breaks", 0))
 	firewall_rep = int(d.get("firewall_rep", 0))
+	credits = int(d.get("credits", 0))
 	unlocked_morphs = _strings_to_names(d.get("unlocked_morphs", ["octomorph", "synth", "biomorph"]))
 	gear = _strings_to_names(d.get("gear", []))
 	intel = _strings_to_names(d.get("intel", []))
 	completed_ops = _strings_to_names(d.get("completed_ops", []))
 	current_op_id = StringName(d.get("current_op_id", ""))
-	op_flags = (d.get("op_flags", {}) as Dictionary).duplicate(true)
+	# Rebuild with StringName keys: a JSON round-trip stringifies dict keys, and
+	# Godot 4 treats String and StringName as distinct keys, so get_flag(&"x")
+	# would otherwise miss after load_game(). (In-memory checkpoints are already
+	# StringName-keyed; StringName(StringName) is a harmless no-op there.)
+	var flags_in: Dictionary = d.get("op_flags", {})
+	op_flags = {}
+	for k in flags_in:
+		op_flags[StringName(k)] = flags_in[k]
 	difficulty = int(d.get("difficulty", Difficulty.STANDARD))
 
 func _names_to_strings(arr: Array) -> Array:

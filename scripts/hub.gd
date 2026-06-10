@@ -16,6 +16,7 @@ extends Node2D
 
 var _resleeve_ids: Array[StringName] = []
 var _board_ops: Array = []
+var _shop_ids: Array[StringName] = []
 
 func _ready() -> void:
 	# Mirror persistent ego moxie onto the live Player and back (same contract
@@ -69,12 +70,40 @@ func _on_resleeve_chosen(index: int) -> void:
 	if index < _resleeve_ids.size():
 		MorphManager.switch_morph(_resleeve_ids[index])
 
-# -- Quartermaster / fabber (gear comes online in Phase 4) --
+# -- Quartermaster / fabber: buy field gear with op credits --
 
 func _on_quartermaster() -> void:
+	_shop_ids = []
+	var choices: Array = []
+	for id: StringName in GearCatalog.all_ids():
+		var g := GearCatalog.get_gear(id)
+		choices.append("%s — %d cr  (%s)" % [g["name"], g["cost"], g["desc"]])
+		_shop_ids.append(id)
+	choices.append("Leave")
+	dialogue_box.show_lines_with_choices(
+		[
+			"The fabber's reservoirs are charged. \"What do you need, sentinel?\"",
+			"Credits: %d    ·    Loadout: %d/%d slots" % [
+				GameState.credits, GameState.gear.size(), GameState.MAX_GEAR_SLOTS],
+		],
+		choices,
+	)
+	dialogue_box.choice_made.connect(_on_quartermaster_choice, CONNECT_ONE_SHOT)
+
+func _on_quartermaster_choice(index: int) -> void:
+	if index >= _shop_ids.size():
+		return  # "Leave"
+	var id := _shop_ids[index]
+	if GameState.gear.size() >= GameState.MAX_GEAR_SLOTS:
+		dialogue_box.show_lines(["\"Your loadout's full, sentinel. Spend something in the field first.\""])
+		return
+	if GameState.credits < GearCatalog.cost(id):
+		dialogue_box.show_lines(["\"Not enough scrip for that. Run another op and come back.\""])
+		return
+	GameState.buy_gear(id, GearCatalog.cost(id))
 	dialogue_box.show_lines([
-		"The fabber hums, its reservoirs nearly dry.",
-		"\"Gear requisition isn't online yet, sentinel. Come back when the supply line's up.\"",
+		"The fabber spins up. Fabricated: %s." % GearCatalog.display_name(id),
+		"Credits remaining: %d." % GameState.credits,
 	])
 
 # -- Psychosurgery: restore Moxie, clear sticky trauma --
@@ -130,6 +159,7 @@ func _on_debrief() -> void:
 	dialogue_box.show_lines([
 		"— Debrief terminal —",
 		"Firewall standing: %d" % GameState.firewall_rep,
+		"Credits: %d" % GameState.credits,
 		"Ops resolved: %d" % GameState.completed_ops.size(),
 		"Continuity breaks: %d" % GameState.continuity_breaks,
 		"Active trauma: %s" % traumas,

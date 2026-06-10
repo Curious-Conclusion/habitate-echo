@@ -13,3 +13,5 @@ class_name Op
 @export var objectives: Array[StringName] = []
 @export_multiline var briefing: Array[String] = []
 @export_multiline var debrief: Array[String] = []
+## Salvage scrip awarded once, the first time the op is completed.
+@export var reward_credits: int = 30
