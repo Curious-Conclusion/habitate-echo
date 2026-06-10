@@ -12,6 +12,7 @@
 [ext_resource type="Script" uid="uid://cx0v4g35cj00s" path="res://scripts/glitch_overlay.gd" id="10_glitch"]
 [ext_resource type="Script" path="res://scripts/vacuum_zone.gd" id="11_vac"]
 [ext_resource type="PackedScene" uid="uid://c4fieldgear8echo" path="res://scenes/field_gear.tscn" id="12_gear"]
+[ext_resource type="PackedScene" uid="uid://c5whispers8echo" path="res://scenes/whispers.tscn" id="13_whisp"]
 
 [sub_resource type="RectangleShape2D" id="RectHWall"]
 size = Vector2(900, 8)
@@ -215,3 +216,5 @@ visual_color = Color(0.2, 0.8, 0.9, 1)
 sprite_path = "res://art/objects/relay.png"
 
 [node name="FieldGear" parent="." instance=ExtResource("12_gear")]
+
+[node name="Whispers" parent="." instance=ExtResource("13_whisp")]

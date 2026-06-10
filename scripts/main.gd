@@ -282,9 +282,10 @@ func _on_device_scanned() -> void:
 	_spawn_nanite_swarm()
 
 func _spawn_nanite_swarm() -> void:
-	var swarm := NaniteSwarmScene.instantiate()
-	swarm.global_position = suspicious_device.global_position + Vector2(0, 40)
-	add_child(swarm)
+	for i in GameState.swarm_count():
+		var swarm := NaniteSwarmScene.instantiate()
+		swarm.global_position = suspicious_device.global_position + Vector2(i * 30, 40)
+		add_child(swarm)
 
 # -- Player Death / Respawn --
 

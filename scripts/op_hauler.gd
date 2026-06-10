@@ -87,6 +87,12 @@ func _on_extract_point() -> void:
 			"But you can't leave Petrov's ego stranded. Recover it first.",
 		])
 		return
+	# Show the extract beat BEFORE completing: _on_all_complete awaits
+	# dialogue_finished, so the last objective must leave a dialogue open.
+	dialogue_box.show_lines([
+		"You seat Petrov's stack in the relay cradle and key the cast.",
+		"The hauler's last power dims around you as the relay drinks it.",
+	])
 	MissionManager.complete_objective(&"extract")
 
 # -- Resleeve stress --
@@ -97,9 +103,10 @@ func _on_resleeve_moxie(_morph_id: StringName) -> void:
 # -- Threat --
 
 func _spawn_swarm(at: Vector2) -> void:
-	var swarm := NaniteSwarmScene.instantiate()
-	swarm.global_position = at
-	add_child(swarm)
+	for i in GameState.swarm_count():
+		var swarm := NaniteSwarmScene.instantiate()
+		swarm.global_position = at + Vector2(i * 30, 0)
+		add_child(swarm)
 
 # -- Death / respawn (lose-continuity fork on ego death) --
 

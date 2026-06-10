@@ -44,6 +44,25 @@ var op_flags: Dictionary = {}              ## per-op narrative flags (e.g. has_o
 # --- Settings ---
 var difficulty: Difficulty = Difficulty.STANDARD
 
+# ---------------------------------------------------------------------------
+# Threat pacing (DESIGN_OUTLINE.md §9): ops read these instead of hard-coding
+# pressure, so one setting scales the whole campaign.
+# ---------------------------------------------------------------------------
+
+## How many swarms a hostile event spawns.
+func swarm_count() -> int:
+	return 2 if difficulty == Difficulty.RELENTLESS else 1
+
+## Multiplier on Moxie damage from info-hazards and psychic backlash.
+func hazard_moxie_mult() -> float:
+	match difficulty:
+		Difficulty.STORY:
+			return 0.5
+		Difficulty.RELENTLESS:
+			return 1.5
+		_:
+			return 1.0
+
 # --- Checkpoint snapshot (op-start save + ego-death backup) ---
 var _checkpoint: Dictionary = {}
 

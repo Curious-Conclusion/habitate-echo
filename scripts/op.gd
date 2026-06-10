@@ -15,3 +15,5 @@ class_name Op
 @export_multiline var debrief: Array[String] = []
 ## Salvage scrip awarded once, the first time the op is completed.
 @export var reward_credits: int = 30
+## The op board hides this op until the named op is complete (&"" = always shown).
+@export var unlock_after: StringName = &""

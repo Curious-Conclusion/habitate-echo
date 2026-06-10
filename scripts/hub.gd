@@ -35,9 +35,14 @@ func _ready() -> void:
 # -- Op board: pick the next op -> deploy --
 
 func _on_op_board() -> void:
-	_board_ops = OpCatalog.all_ops()
+	# Contracts surface progressively: an op stays off the board until its
+	# unlock_after prerequisite is resolved.
+	_board_ops = []
 	var choices: Array = []
-	for op: Op in _board_ops:
+	for op: Op in OpCatalog.all_ops():
+		if op.unlock_after != &"" and not GameState.is_op_complete(op.unlock_after):
+			continue
+		_board_ops.append(op)
 		var done: String = "  [resolved]" if GameState.is_op_complete(op.id) else ""
 		choices.append(op.title + done)
 	choices.append("Stand down")
@@ -140,10 +145,17 @@ func _on_handler() -> void:
 func _on_handler_choice(index: int) -> void:
 	match index:
 		0:
-			dialogue_box.show_lines([
+			var lines: Array = [
 				"\"The mesh is thick with async chatter. We contain what we can.\"",
 				"\"You're deniable. Off the books. That's the job.\"",
-			])
+			]
+			# The handler remembers what you did at Aphelion.
+			if GameState.get_flag(&"researcher_saved"):
+				lines.append("\"Okafor's ego is stabilizing in our care. You did right by her.\"")
+			elif GameState.get_flag(&"researcher_culled"):
+				lines.append("\"We logged Okafor as unrecoverable. Nobody's questioning it.\"")
+				lines.append("\"Nobody but you, I'd guess.\"")
+			dialogue_box.show_lines(lines)
 		1:
 			dialogue_box.show_lines(["\"Check the op board. I post what clears legal — and what doesn't.\""])
 		2:
