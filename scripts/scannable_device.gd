@@ -5,6 +5,8 @@ signal scan_completed
 @export var scan_duration: float = 3.0
 @export var prompt_text: String = "[Hold E] Scan Device"
 @export var visual_color: Color = Color(0.6, 0.1, 0.6)
+## Optional PNG sprite. When set, it replaces the colored-square visual.
+@export var sprite_path: String = ""
 
 @onready var prompt_label: Label = $PromptLabel
 @onready var visual: ColorRect = $Visual
@@ -18,12 +20,26 @@ var scan_done := false
 func _ready() -> void:
 	prompt_label.text = prompt_text
 	prompt_label.visible = false
-	visual.color = visual_color
+	if sprite_path != "":
+		visual.visible = false
+		var spr := Sprite2D.new()
+		spr.texture = _load_tex(sprite_path)
+		add_child(spr)
+	else:
+		visual.color = visual_color
 	scan_bar.visible = false
 	scan_bar.max_value = scan_duration
 	scan_bar.value = 0.0
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
+
+func _load_tex(path: String) -> Texture2D:
+	if ResourceLoader.exists(path):
+		return load(path)
+	var img := Image.new()
+	if img.load(path) == OK:
+		return ImageTexture.create_from_image(img)
+	return null
 
 func _unhandled_input(event: InputEvent) -> void:
 	if scan_done or not player_in_range:

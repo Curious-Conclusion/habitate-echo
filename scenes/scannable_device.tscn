@@ -8,6 +8,7 @@ radius = 40.0
 [node name="ScannableDevice" type="Area2D"]
 monitorable = false
 script = ExtResource("1_scan")
+sprite_path = "res://art/objects/device.png"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_scan")

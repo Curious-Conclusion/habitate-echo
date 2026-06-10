@@ -8,6 +8,7 @@ radius = 40.0
 [node name="ResleevingPod" type="Area2D" unique_id=1777523461]
 monitorable = false
 script = ExtResource("1_k6kfr")
+sprite_path = "res://art/objects/pod.png"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=503818752]
 shape = SubResource("CircleShape2D_xrn5q")
