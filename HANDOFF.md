@@ -80,13 +80,40 @@ in use with another game). Verify these first next engine session:**
   `site_halcyon_layout.md` added — the Act 2 multi-deck station design
   (3 decks + spine, hunter, containment-decision climax).
 
+**Round 2 (also engine-free, also ⚠️ unverified):**
+
+- **Op 2 — Aphelion research lab** (`scenes/op_lab.tscn` + `op_lab.gd`,
+  unlocks after the hauler, 70 cr): the archive info-hazard choice (three
+  partitions — maintenance is safe; primary is a basilisk that sears Moxie and
+  wakes drones on STANDARD+; personnel costs a sting but yields the hint; the
+  clean clue is a note in an Octomorph-only crawlspace), a mild cryo-leak
+  zone (reused `vacuum_zone.gd`, tuned exports), and the **rehabilitate-vs-cull
+  fork** on Dr. Okafor (rehab: needs protocol, Moxie backlash, +1 rep,
+  `researcher_saved`; cull: free but a sticky `executioners_echo` trauma,
+  `researcher_culled`). The hub handler's "situation" line reacts to the flag.
+- **Whispers** (`whispers.gd/tscn`, instanced in all three ops): intrusive
+  lines fade in at irregular intervals while deranged.
+- **Difficulty → pacing**: `GameState.swarm_count()` / `hazard_moxie_mult()`;
+  all ops' spawns route through them. **Progressive unlocks**: `Op.unlock_after`
+  hides ops on the board until the prerequisite is resolved (ke7 → hauler → lab).
+- **Bug fixed (was shipped, found by desk-check):** silent-extract hang — 
+  `_on_all_complete` awaits `dialogue_finished`, but the hauler's extract
+  completed its objective with no dialogue open, so real play hung at op end
+  (live verification had masked it by emitting the signal manually). Extract
+  now opens its dialogue before completing. Also fixed: lab replay deadlock
+  (persistent researcher flags now auto-complete `resolve_researcher`).
+
 **Verification checklist for next engine session:** title → New Game → KE-7
 deploys; complete an op → credits awarded (debrief shows them); quartermaster
 buy; [G] panel + each gear effect (heal / EMP / farcaster mid-op); title →
 Continue resumes at hub with flags intact (exercises the op_flags fix); new
-sprites render everywhere. Note: invented uids in new .tscn files get
-rewritten by the editor on first import — expected churn, references resolve
-by path.
+sprites render everywhere; **extract beat shows dialogue then debrief then hub
+(the hang fix) in hauler AND lab**; op board shows hauler only after KE-7, lab
+only after hauler; whispers appear when deranged and stop when stable; lab:
+both archive wrong-reads, the crawl note, both Okafor resolutions (+ handler
+echo at hub, trauma after cull clears at psychosurgery). Note: invented uids
+in new .tscn files get rewritten by the editor on first import — expected
+churn, references resolve by path.
 
 **Next (roadmap in `DESIGN_OUTLINE.md §8`):** the info-hazard + ethics branch
 op (Act 1 Op 2); difficulty actually scaling threat pacing
@@ -224,8 +251,10 @@ scenes/
   title.tscn                   boot scene: New Game / Continue / Quit
   main.tscn                    KE-7 op scene (= Op 0)
   op_hauler.tscn               Op 1 — derelict hauler (vacuum hold, extract point)
+  op_lab.tscn                  Op 2 — Aphelion lab (info-hazard, ethics fork)
   hub.tscn                     the Firewall safehouse (6 stations)
   field_gear.tscn              [G] gear quick-use panel (instanced in op scenes)
+  whispers.tscn                low-Moxie ambient dread lines (instanced in ops)
   player.tscn, resleeving_pod.tscn, dialogue_box.tscn, interactable.tscn,
   scannable_device.tscn, end_screen.tscn (end_screen now unused — kept for a
                                possible future hard-fail; win→hub, death→fork)
@@ -241,7 +270,10 @@ scripts/
   hub.gd                       safehouse station logic (incl. quartermaster shop)
   main.gd                      orchestrates KE-7; reads GameState/SceneFlow/OpCatalog
   op_hauler.gd                 orchestrates Op 1 (hauler); same patterns as main.gd
+  op_lab.gd                    orchestrates Op 2 (lab): archive choice, Okafor fork
+  whispers.gd                  deranged-state intrusive lines (timer + fade)
   vacuum_zone.gd               breach hazard: drains HP/Moxie unless VACUUM_SEAL
+                               (exports tunable — the lab reuses it as a cryo leak)
   morph_manager.gd (autoload)  morph data + current_morph_id
   mission_manager.gd (autoload) objectives for current op (armed via start_op(Op))
   player.gd                    movement, Moxie/stress/burn, sprite loading

@@ -106,14 +106,41 @@ throughout. Reward: 40 cr.
 Board a powerless, hull-breached freighter. Read the data log → resleeve to Synth
 → cross the **vacuum-breached hold** (`vacuum_zone.gd` drains HP/Moxie unless
 vacuum-sealed) → recover a stranded ego (`recover_ego`) → reach the egocast point
-(`extract`). Light async swarm. Reward: 55 cr.
+(`extract`). Light async swarm. Reward: 55 cr. Unlocks after KE-7.
 
-## Threats
+### Op 2 — Aphelion research lab (`scenes/op_lab.tscn`)
+
+A lab gone dark; its own archive turned info-hazardous. The archive is a
+**choice**: three partitions, one safe. Clues point to the right one (a hidden
+note via Octomorph crawlspace, or a partial hint in the personnel records at a
+small Moxie sting); the primary archive is a **basilisk hazard** — a heavy Moxie
+hit, and containment drones wake on STANDARD+. Cold storage leaks cryo (the
+vacuum-zone hazard, tuned mild) and holds **Dr. Okafor**, async-infected — the
+first ethics fork:
+
+- **Rehabilitate** (requires the recovered protocol): costs a Moxie backlash now,
+  +1 Firewall rep, `researcher_saved` persists.
+- **Cull**: instant and free — but a sticky **trauma** (`executioners_echo`)
+  comes home with you, and `researcher_culled` persists.
+
+Either way the lab notices, and pressure rises for the walk back to the relay.
+The handler remembers your choice in later hub visits. Reward: 70 cr. Unlocks
+after the hauler.
+
+## Threats & dread
 
 Nanite swarms (`nanite_swarm.gd`) chase the player, dealing periodic damage and
-Moxie drain; EMP-able and cleared on death. Vacuum sections damage non-sealed
-morphs over time. Threat budget per op is deliberately scarce — fear comes from
-limited Moxie/medichines and morph constraints, not enemy count.
+Moxie drain; EMP-able and cleared on death. Vacuum/cryo sections damage
+non-sealed morphs over time. Threat budget per op is deliberately scarce — fear
+comes from limited Moxie/medichines and morph constraints, not enemy count.
+
+**Difficulty scales pacing** (`GameState.swarm_count()`,
+`hazard_moxie_mult()`): STORY halves psychic damage and skips retaliation
+spawns; RELENTLESS doubles swarms and amplifies info-hazards.
+
+**Whispers** (`whispers.gd`): while deranged (Moxie below 35), intrusive lines
+fade in at irregular intervals — the async, or your own fraying ego; the game
+never says which.
 
 ## Save model
 
