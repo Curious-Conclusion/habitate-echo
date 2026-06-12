@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://c8bulkhead8echo"]
+[gd_scene format=3 uid="uid://dscqm81ops4km"]
 
 [ext_resource type="Script" path="res://scripts/bulkhead.gd" id="1_bh"]
 

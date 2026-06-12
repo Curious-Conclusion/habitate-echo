@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://ijn40a24ls27" path="res://scenes/dialogue_box.tscn" id="3_dlg"]
 [ext_resource type="PackedScene" uid="uid://b0kd1kpl7l2sq" path="res://scenes/interactable.tscn" id="4_int"]
 [ext_resource type="Script" uid="uid://b2pwogun2gsue" path="res://scripts/moxie_bar.gd" id="5_moxie"]
+[ext_resource type="PackedScene" uid="uid://cpause8echo0006" path="res://scenes/pause_menu.tscn" id="99_pause"]
 
 [sub_resource type="RectangleShape2D" id="RectH"]
 size = Vector2(760, 8)
@@ -122,3 +123,5 @@ position = Vector2(380, 210)
 prompt_text = "[E] Debrief Terminal"
 visual_color = Color(0.6, 0.6, 0.65, 1)
 sprite_path = "res://art/objects/debrief.png"
+
+[node name="PauseMenu" parent="." instance=ExtResource("99_pause")]

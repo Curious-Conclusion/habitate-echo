@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://c4fieldgear8echo" path="res://scenes/field_gear.tscn" id="12_gear"]
 [ext_resource type="PackedScene" uid="uid://c5whispers8echo" path="res://scenes/whispers.tscn" id="13_whisp"]
 [ext_resource type="PackedScene" uid="uid://c6objhud8echo" path="res://scenes/objective_hud.tscn" id="14_objhud"]
+[ext_resource type="PackedScene" uid="uid://cpause8echo0006" path="res://scenes/pause_menu.tscn" id="99_pause"]
 
 [sub_resource type="RectangleShape2D" id="RectHWall"]
 size = Vector2(900, 8)
@@ -221,3 +222,5 @@ sprite_path = "res://art/objects/relay.png"
 [node name="Whispers" parent="." instance=ExtResource("13_whisp")]
 
 [node name="ObjectiveHud" parent="." instance=ExtResource("14_objhud")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("99_pause")]

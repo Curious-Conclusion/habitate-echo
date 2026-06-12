@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://c9halcyon8echo04"]
+[gd_scene format=3 uid="uid://c8p1550vt1tat"]
 
 [ext_resource type="Script" path="res://scripts/op_halcyon.gd" id="1_hal"]
 [ext_resource type="PackedScene" uid="uid://bu0dbnxtsapat" path="res://scenes/player.tscn" id="2_player"]
@@ -16,6 +16,7 @@
 [ext_resource type="PackedScene" uid="uid://c6objhud8echo" path="res://scenes/objective_hud.tscn" id="14_objhud"]
 [ext_resource type="PackedScene" uid="uid://c7hunter8echo" path="res://scenes/hunter.tscn" id="15_hunter"]
 [ext_resource type="PackedScene" uid="uid://c8bulkhead8echo" path="res://scenes/bulkhead.tscn" id="16_bh"]
+[ext_resource type="PackedScene" uid="uid://cpause8echo0006" path="res://scenes/pause_menu.tscn" id="99_pause"]
 
 [sub_resource type="RectangleShape2D" id="RectOuterH"]
 size = Vector2(900, 8)
@@ -429,3 +430,5 @@ position = Vector2(700, 900)
 [node name="Whispers" parent="." instance=ExtResource("13_whisp")]
 
 [node name="ObjectiveHud" parent="." instance=ExtResource("14_objhud")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("99_pause")]
