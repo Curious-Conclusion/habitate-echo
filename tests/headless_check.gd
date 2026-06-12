@@ -46,6 +46,7 @@ func _run() -> void:
 	await _test_lab_flow()
 	await _test_halcyon_flow()
 	await _test_halcyon_branches()
+	await _test_endings()
 	_test_fork_and_difficulty()
 
 	print("")
@@ -390,6 +391,17 @@ func _test_halcyon_branches() -> void:
 	op.free()
 	await process_frame
 
+	# Replaying Halcyon must NOT re-open the climax (ending flags would corrupt).
+	var op3 := await _fresh_halcyon_at_core()
+	GS.set_flag(&"halcyon_burned")  # a prior run's answer
+	var rep3: int = GS.firewall_rep
+	op3._on_core()
+	paused = false
+	_check(MM.is_complete(&"contain"), "replay auto-keeps the prior containment answer")
+	_check(not GS.get_flag(&"halcyon_vented") and GS.firewall_rep == rep3, "replay can't re-choose or drift rep")
+	op3.free()
+	await process_frame
+
 	# Difficulty tunes the hunter at spawn.
 	GS.reset_new_game()
 	GS.difficulty = GS.Difficulty.RELENTLESS
@@ -413,6 +425,100 @@ func _fresh_halcyon_at_core() -> Node:
 	MM.complete_objective(&"extract_infohazard")
 	paused = false
 	return op
+
+func _test_endings() -> void:
+	var EC := load("res://scripts/ending_composer.gd")
+
+	# Carrier: the unaided counter-script's exposure outranks everything.
+	GS.reset_new_game()
+	GS.set_flag(&"halcyon_counterscript")
+	GS.set_flag(&"network_exposed")
+	GS.firewall_rep = 2
+	var e: Dictionary = EC.compose()
+	_check(e["id"] == &"carrier", "exposed counter-script -> CARRIER")
+	_check(String(e["paragraphs"][-1]).contains("never here"), "mid rep gets the standard sign-off")
+
+	# Second Opinion: the clean script is its own Okafor thread — no doubled modifier.
+	GS.reset_new_game()
+	GS.set_flag(&"halcyon_counterscript")
+	GS.set_flag(&"researcher_saved")
+	GS.firewall_rep = 4
+	e = EC.compose()
+	_check(e["id"] == &"second_opinion", "clean counter-script -> SECOND OPINION")
+	var joined := " ".join(e["paragraphs"])
+	_check(not joined.contains("recovery is slow"), "no duplicate Okafor modifier on its own ending")
+	_check(joined.contains("Best sentinel"), "high rep farewell present")
+
+	# Clean Burn: venting + culling + the trauma you kept.
+	GS.reset_new_game()
+	GS.set_flag(&"halcyon_vented")
+	GS.set_flag(&"researcher_culled")
+	GS.add_trauma(&"hundred_names")
+	GS.firewall_rep = -1
+	e = EC.compose()
+	_check(e["id"] == &"clean_burn", "venting -> CLEAN BURN")
+	joined = " ".join(e["paragraphs"])
+	_check(joined.contains("as far as ninety"), "the counting motif pays off")
+	_check(joined.contains("signed that ledger"), "culled Okafor thread present")
+	_check(joined.contains("weights you keep"), "carried trauma postscript present")
+	_check(joined.contains("Accounts settled"), "low rep farewell present")
+
+	# Empty Hands: burned + saved + two deaths + high standing.
+	GS.reset_new_game()
+	GS.set_flag(&"halcyon_burned")
+	GS.set_flag(&"researcher_saved")
+	GS.continuity_breaks = 2
+	GS.firewall_rep = 4
+	e = EC.compose()
+	_check(e["id"] == &"empty_hands", "burning the payload -> EMPTY HANDS")
+	joined = " ".join(e["paragraphs"])
+	_check(joined.contains("didn't flinch"), "saved Okafor thread present")
+	_check(joined.contains("2 times"), "continuity breaks counted")
+
+	# Carrier + culled: the absence that caused the exposure gets named.
+	GS.reset_new_game()
+	GS.set_flag(&"halcyon_counterscript")
+	GS.set_flag(&"network_exposed")
+	GS.set_flag(&"researcher_culled")
+	e = EC.compose()
+	_check(" ".join(e["paragraphs"]).contains("from the inside"), "CARRIER + culled names the Okafor absence")
+
+	# No containment flag at all (legacy/tampered save) -> sealed record fallback.
+	GS.reset_new_game()
+	e = EC.compose()
+	_check(e["id"] == &"record_sealed", "no-flag fallback seals the record")
+
+	# The vent trauma has a voice now (the last-word device depends on it).
+	var wh_lines: Array = load("res://scripts/whispers.gd").TRAUMA_LINES.get(&"hundred_names", [])
+	_check(wh_lines.size() == 3 and String(wh_lines[0]).contains("twelve"), "hundred_names has its voice")
+
+	# The hub handler offers the epilogue only once Halcyon is resolved.
+	GS.reset_new_game()
+	var hub := (load("res://scenes/hub.tscn") as PackedScene).instantiate()
+	root.add_child(hub)
+	await process_frame
+	hub._on_handler()
+	_check(hub._handler_actions[0] == &"situation", "no epilogue offer before Halcyon")
+	hub.get_node("DialogueBox").choice_made.emit(hub._handler_actions.size())
+	paused = false
+	GS.completed_ops.append(&"halcyon")
+	hub._on_handler()
+	_check(hub._handler_actions[0] == &"epilogue", "epilogue offered after Halcyon")
+	hub.get_node("DialogueBox").choice_made.emit(hub._handler_actions.size())
+	paused = false
+	hub.free()
+	await process_frame
+
+	# The ending scene itself plays (sets epilogue_seen, writes the save).
+	GS.reset_new_game()
+	GS.set_flag(&"halcyon_vented")
+	var ending := (load("res://scenes/ending.tscn") as PackedScene).instantiate()
+	root.add_child(ending)
+	await process_frame
+	_check(GS.get_flag(&"epilogue_seen") == true, "ending scene marks the epilogue seen")
+	_check(ending.get_node("Card") != null, "ending scene card present")
+	ending.free()
+	await process_frame
 
 func _test_fork_and_difficulty() -> void:
 	GS.reset_new_game()

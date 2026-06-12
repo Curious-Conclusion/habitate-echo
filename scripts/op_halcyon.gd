@@ -235,6 +235,13 @@ func _on_core() -> void:
 	if MissionManager.is_complete(&"contain"):
 		dialogue_box.show_lines(["The core is silent. Whatever answer you gave it, it keeps."])
 		return
+	# On a replay the answer was already given — it stays given. (Re-opening
+	# the choice would let ending flags accumulate and contradict each other.)
+	if GameState.get_flag(&"halcyon_vented") or GameState.get_flag(&"halcyon_counterscript") \
+			or GameState.get_flag(&"halcyon_burned"):
+		MissionManager.complete_objective(&"contain")
+		dialogue_box.show_lines(["The core is silent. Whatever answer you gave it, it keeps."])
+		return
 	if not MissionManager.is_complete(&"restore_power") \
 			or not MissionManager.is_complete(&"extract_infohazard"):
 		dialogue_box.show_lines([

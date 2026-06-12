@@ -1,3 +1,4 @@
+class_name Whispers
 extends CanvasLayer
 ## Ambient dread: while the player is deranged (low Moxie), intrusive lines
 ## surface at irregular intervals — the async, or your own fraying ego; the
@@ -31,6 +32,11 @@ const TRAUMA_LINES: Dictionary = {
 		"Finally finally.",
 		"She didn't resist. That's the part that stays.",
 		"Three seconds. You counted.",
+	],
+	&"hundred_names": [
+		"One hundred and twelve.",
+		"You read the manifest twice. The second time, you were checking for your own name.",
+		"They were hiding because you told them help was coming.",
 	],
 }
 

@@ -142,19 +142,45 @@ func _on_psychosurgery() -> void:
 
 # -- Handler & contacts --
 
+var _handler_actions: Array[StringName] = []
+
 func _on_handler() -> void:
+	_handler_actions = []
+	var choices: Array = []
+	# After Halcyon, the campaign can close: the final report is waiting.
+	if GameState.is_op_complete(&"halcyon"):
+		_handler_actions.append(&"epilogue")
+		choices.append("\"It's done.\"" if not GameState.get_flag(&"epilogue_seen")
+				else "\"Read me the final report again.\"")
+	_handler_actions.append(&"situation")
+	choices.append("\"What's the situation?\"")
+	_handler_actions.append(&"contracts")
+	choices.append("\"Any new contracts?\"")
+	_handler_actions.append(&"checking_in")
+	choices.append("\"Just checking in.\"")
 	dialogue_box.show_lines_with_choices(
 		[
 			"Your proxy's icon resolves on the comm.",
 			"\"Welcome back to the safehouse, sentinel. Still breathing — good.\"",
 		],
-		["\"What's the situation?\"", "\"Any new contracts?\"", "\"Just checking in.\""],
+		choices,
 	)
 	dialogue_box.choice_made.connect(_on_handler_choice, CONNECT_ONE_SHOT)
 
 func _on_handler_choice(index: int) -> void:
-	match index:
-		0:
+	if index >= _handler_actions.size():
+		return
+	match _handler_actions[index]:
+		&"epilogue":
+			dialogue_box.show_lines([
+				"A long pause on the comm. When your proxy speaks again, the",
+				"handler-voice is gone; what's left sounds almost like a person.",
+				"\"Yeah. I'm closing your sentinel record — go be someone",
+				"for a while. I'll send the final report.\"",
+			])
+			await dialogue_box.dialogue_finished
+			SceneFlow.go_to_ending()
+		&"situation":
 			var lines: Array = [
 				"\"The mesh is thick with exsurgent chatter. We contain what we can.\"",
 				"\"You're deniable. Off the books. That's the job.\"",
@@ -166,9 +192,9 @@ func _on_handler_choice(index: int) -> void:
 				lines.append("\"We logged Okafor as unrecoverable. Nobody's questioning it.\"")
 				lines.append("\"Nobody but you, I'd guess.\"")
 			dialogue_box.show_lines(lines)
-		1:
+		&"contracts":
 			dialogue_box.show_lines(["\"Check the op board. I post what clears legal — and what doesn't.\""])
-		2:
+		&"checking_in":
 			dialogue_box.show_lines(["\"Rest while you can. The next one's always coming.\""])
 
 # -- Debrief terminal: recap persistent state --

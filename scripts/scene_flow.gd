@@ -6,6 +6,7 @@ extends Node
 ## mapping lives in the Op layer (OpCatalog), resolved by begin_op().
 
 const HUB_SCENE := "res://scenes/hub.tscn"
+const ENDING_SCENE := "res://scenes/ending.tscn"
 
 var _current_op_scene: String = ""   ## for restart / ego-death reload
 
@@ -16,6 +17,12 @@ func go_to_hub() -> void:
 	GameState.snapshot_checkpoint()
 	GameState.save()
 	_change_scene(HUB_SCENE)
+
+## The campaign epilogue — the handler sends you home after Halcyon.
+func go_to_ending() -> void:
+	GameState.current_op_id = &""
+	_current_op_scene = ""
+	_change_scene(ENDING_SCENE)
 
 ## Commit loadout and egocast into an op. Op-start is the checkpoint + backup
 ## the ego-death fork restores from.

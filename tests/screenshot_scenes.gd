@@ -11,6 +11,7 @@ const SHOTS := [
 	["op_hauler", "res://scenes/op_hauler.tscn"],
 	["op_lab", "res://scenes/op_lab.tscn"],
 	["op_halcyon", "res://scenes/op_halcyon.tscn"],
+	["ending", "res://scenes/ending.tscn"],
 ]
 
 func _initialize() -> void:
@@ -22,7 +23,7 @@ func _run() -> void:
 	for entry: Array in SHOTS:
 		root.get_node("GameState").reset_new_game()
 		change_scene_to_file(entry[1])
-		for i in 10:  # let _ready, sprites, and a few animation frames settle
+		for i in 60:  # let _ready, sprites, and fades settle (~1s at 60fps)
 			await process_frame
 		paused = false  # a scene may have opened a pausing dialogue; keep going
 		var img := root.get_texture().get_image()
