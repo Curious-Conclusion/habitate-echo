@@ -7,6 +7,9 @@ extends CanvasLayer
 
 func _ready() -> void:
 	MissionManager.objective_completed.connect(func(_id: StringName) -> void: _refresh())
+	# Deferred: on a direct scene launch the op root's _ready (which bootstraps
+	# the op) runs AFTER this child's — refresh again once the whole tree is up.
+	_refresh.call_deferred()
 	_refresh()
 
 func _refresh() -> void:

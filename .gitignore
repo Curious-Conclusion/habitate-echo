@@ -20,3 +20,5 @@ exports/
 
 # Claude Code config
 .claude/
+# Generated screenshots from tests/screenshot_scenes.gd
+tests/shots/

@@ -52,8 +52,23 @@ hub. A light async swarm spawns on stack retrieval. Verified: morph-gating (Synt
 required), vacuum damage (8/tick non-sealed, 0 sealed), extract gating, full
 hub→Op1→hub loop, both ops listed on the board.
 
-**Built engine-free (code-complete, ⚠️ NOT yet verified live — the engine was
-in use with another game). Verify these first next engine session:**
+**✅ VERIFIED (2026-06-11): everything below passed in the real engine.**
+A headless functional suite (`tests/headless_check.gd`, 53 checks — run
+`godot --headless --path . -s res://tests/headless_check.gd`) covers the whole
+checklist: economy, save/load (op_flags fix), unlock gating, the full lab op
+(archive hazard, both Okafor paths' state, extract chain incl. the hang fix,
+replay deadlock fix), fork, difficulty pacing, whisper pools, and
+instantiation of every scene. A windowed screenshot harness
+(`tests/screenshot_scenes.gd`, writes `tests/shots/*.png`, untracked) visually
+confirmed all five scenes render with the new sprites and the objectives HUD.
+One bug found by the visual pass and fixed: the objectives HUD rendered empty
+on direct scene launch (child `_ready` ran before the op root's bootstrap) —
+now refreshes deferred. **This tooling works without the godot-ai MCP** — the
+binary lives at `C:\Godot\Editor\Godot_v4.6.2-stable_win64_console.exe`.
+Still untested (needs eyes/hands): feel — input, swarm chases, whisper fade
+timing, dialogue pacing. Everything logical is green.
+
+**Built engine-free (code-complete), since verified — kept for context:**
 
 - **Gear/loadout system.** `GameState` gained `credits` + a 4-slot `gear`
   loadout (`award_credits` / `buy_gear` / `consume_gear`, persisted in the
