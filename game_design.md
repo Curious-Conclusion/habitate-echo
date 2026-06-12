@@ -180,6 +180,26 @@ spawns; RELENTLESS doubles swarms and amplifies info-hazards.
 fade in at irregular intervals — the async, or your own fraying ego; the game
 never says which.
 
+## Endings
+
+After Halcyon, the handler closes your sentinel record ("It's done.") and the
+**final report** plays — composed by `ending_composer.gd` from everything you
+did. Four base endings keyed to the containment choice:
+
+| Ending          | Earned by                                  |
+|-----------------|--------------------------------------------|
+| CARRIER         | The unaided counter-script — it worked, and it kept your credentials |
+| SECOND OPINION  | The counter-script with Okafor's rescued pattern riding shotgun |
+| CLEAN BURN      | Venting the station (112 names, counted)   |
+| EMPTY HANDS     | Burning the payload (everyone lives; Firewall docks you) |
+
+Appended threads: the Okafor choice, continuity breaks, carried traumas, and a
+rep-keyed proxy farewell. If you carry a trauma home, **its whisper line gets
+the literal last word** under the title card (a clean-seeming CARRIER gets
+"Trust me." instead). Replaying Halcyon cannot re-open the climax — the answer
+you gave it stays given. A flagless legacy save seals the record
+(RECORD SEALED fallback). The epilogue is re-readable from the handler.
+
 ## Save model
 
 Hub + op-start checkpoint: GameState is saved on hub entry and on deploy. Death

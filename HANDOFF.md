@@ -172,11 +172,31 @@ fidelity + suspense prose, design/balance) and their findings applied:
 **Suite now 90 checks, all green** (Halcyon flow, all three climax branches,
 Okafor payoff, hunter behaviors, difficulty tuning, economy changes).
 
-**Next:** a HUMAN playtest of Halcyon for feel (hunter pacing, heartbeat mix,
-finale tension — numbers are tuned by review, not by hands); then endings
-driven by rep + the flag constellation (researcher_saved/culled,
-halcyon_vented/counterscript/burned, network_exposed, continuity_breaks) —
-DESIGN_OUTLINE §8 phase 8; set dressing/audio polish.
+**ENDINGS SHIPPED (2026-06-11): the campaign closes.** After Halcyon the hub
+handler offers "It's done." → `ending.tscn` plays the **final report**, composed
+by `ending_composer.gd` (class_name, pure read of GameState, headless-testable)
+from the whole flag constellation: four base endings (CARRIER / SECOND OPINION
+/ CLEAN BURN / EMPTY HANDS) + Okafor thread + continuity breaks + carried
+traumas + rep farewell. Card-sequenced scene ([E] advances, fades); if you
+carry trauma home its whisper line fades in under the title card — the trauma
+gets the last word (a "clean" CARRIER gets "Trust me."). Epilogue re-readable;
+returns to title; `epilogue_seen` saved.
+
+Two review agents (editorial + code/coherence) audited the endings; both
+independently caught that `hundred_names` had no whisper voice (the last-word
+device would silently no-op on the vent path — now voiced: "One hundred and
+twelve."), and the code agent caught a real corruption bug: **replaying
+Halcyon re-opened the climax**, letting ending flags accumulate
+(network_exposed permanently sticky, rep drift). Fixed: the answer stays given
+(`_on_core` auto-completes on replay). Also applied: newest-voiced-trauma
+picker, explicit burn branch + RECORD SEALED fallback for legacy saves,
+"Marker's paid"→"Accounts settled", continuity line de-echoed, EP2e fixes
+(server not board; Okafor ghosts your mesh inserts, not "inside your backup"),
+the proxy no longer echoes "It's done." (echo = infection signature).
+
+**Suite: 112 checks, all green.** Next: HUMAN playtest (Halcyon feel + a full
+campaign run to an ending); then per DESIGN_OUTLINE §3 "going further" — more
+ops/sites, new morphs with burn powers, set dressing/audio polish, NG+.
 
 ---
 
