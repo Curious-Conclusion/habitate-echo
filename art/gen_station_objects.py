@@ -248,18 +248,127 @@ def specimen():
     return c
 
 
+def generator():
+    """Backup generator — heavy amber block, turbine ring, dead until keyed."""
+    A, AD, AL = (190, 150, 60, 255), (122, 92, 30, 255), (225, 190, 105, 255)
+    c = boxed(A, AD, AL, 5, 8, 26, 26)
+    c.disc_ring(16, 17, 6, AD, fill=(70, 56, 22, 255))     # turbine housing
+    c.rect(15, 16, 16, 17, (255, 230, 140, 255))           # pilot light
+    for x in (8, 23):                                       # cooling fins
+        c.rect(x, 10, x, 24, AD)
+    c.rect(11, 5, 20, 8, (96, 96, 104, 255))               # cable trunk up
+    return c
+
+
+def vault():
+    """Data vault — armored slab, keyed seam, a thin hot line of light."""
+    G, GD, GL = (95, 105, 125, 255), (52, 58, 72, 255), (140, 150, 170, 255)
+    HOT = (255, 170, 90, 255)
+    c = boxed(G, GD, GL, 6, 5, 25, 26)
+    c.border(9, 8, 22, 23, GD)                              # inner door
+    c.rect(15, 8, 16, 23, HOT)                              # light through the seam
+    c.disc_ring(16, 15, 4, GD)                              # lock ring
+    return c
+
+
+def core():
+    """Containment core — dark heart in a cage, lit from inside."""
+    CAGE, CAGED = (70, 78, 92, 255), (38, 44, 54, 255)
+    GLOW, HEART = (170, 90, 200, 255), (30, 10, 36, 255)
+    c = C()
+    c.rect(8, 6, 23, 27, CAGED)                             # housing
+    c.border(8, 6, 23, 27, CAGE)
+    for x in (11, 16, 21):                                  # cage bars
+        c.rect(x, 7, x, 26, CAGE)
+    c.disc_ring(16, 16, 6, GLOW, fill=HEART)                # the core
+    c.put(16, 16, (235, 170, 255, 255))                     # too bright to look at
+    c.put(14, 14, GLOW); c.put(18, 18, GLOW)
+    return c
+
+
+def elevator():
+    """Spine elevator — door pair with a call panel."""
+    M, MD, ML = (120, 128, 140, 255), (66, 72, 84, 255), (165, 172, 184, 255)
+    c = boxed(M, MD, ML, 6, 4, 25, 27)
+    c.rect(15, 6, 16, 25, MD)                               # door split
+    c.rect(9, 6, 13, 25, (96, 104, 118, 255))               # door leaves
+    c.rect(18, 6, 22, 25, (96, 104, 118, 255))
+    c.put(24, 14, (120, 230, 140, 255))                     # call light
+    return c
+
+
+def vent():
+    """Crawlway vent — grate pried half-open; something uses this."""
+    M, MD = (104, 110, 122, 255), (56, 60, 70, 255)
+    DARK = (16, 18, 24, 255)
+    c = boxed(M, MD, (150, 156, 168, 255), 7, 9, 24, 24)
+    c.rect(9, 11, 22, 22, DARK)                             # the dark behind
+    for yy in (12, 15, 18, 21):                             # bent slats
+        c.rect(9, yy, 18, yy, MD)
+    c.rect(19, 11, 22, 14, MD)                              # pried corner
+    return c
+
+
+def bulkhead():
+    """Sealable bulkhead — heavy frame, hazard chevrons."""
+    M, MD, ML = (130, 134, 146, 255), (70, 74, 86, 255), (175, 180, 192, 255)
+    HAZ = (210, 170, 60, 255)
+    c = boxed(M, MD, ML, 5, 4, 26, 27)
+    c.rect(8, 7, 23, 24, (88, 92, 104, 255))                # door slab
+    c.border(8, 7, 23, 24, MD)
+    for i in range(4):                                      # chevron stripe
+        c.rect(9 + i * 4, 15, 10 + i * 4, 16, HAZ)
+    return c
+
+
+def hunter(frame):
+    """The Skriker — pale, long-limbed, joints in the wrong places, one red eye.
+    Two frames for a slow crawling loop."""
+    PALE, PALED = (212, 206, 198, 255), (140, 132, 124, 255)
+    EYE = (235, 50, 50, 255)
+    c = C()
+    dy = 0 if frame == 0 else 1
+    # low slung torso, too long
+    c.rect(7, 14 + dy, 24, 19 + dy, PALE)
+    c.rect(7, 19 + dy, 24, 19 + dy, PALED)
+    # head hung below the shoulder line
+    c.rect(23, 17 + dy, 27, 21 + dy, PALE)
+    c.put(26, 19 + dy, EYE)                                  # the eye
+    c.put(27, 19 + dy, EYE)
+    # limbs — stilted, extra joints
+    legs0 = [(9, 20, 7, 26), (13, 20, 15, 27), (18, 20, 16, 26), (22, 20, 24, 27)]
+    legs1 = [(9, 21, 11, 27), (13, 21, 12, 26), (18, 21, 20, 27), (22, 21, 21, 26)]
+    for (x0, y0, x1, y1) in (legs0 if frame == 0 else legs1):
+        # upper segment
+        c.rect(min(x0, x1), y0, max(x0, x1), y0 + 2, PALED)
+        # lower segment to the foot
+        c.rect(x1, y0 + 2, x1, y1, PALE)
+        c.put(x1, y1, PALED)
+    # spine ridge
+    for x in range(8, 24, 3):
+        c.put(x, 13 + dy, PALED)
+    return c
+
+
 def main():
-    out = os.path.join(os.path.dirname(__file__), "objects")
+    base = os.path.dirname(__file__)
+    out = os.path.join(base, "objects")
     os.makedirs(out, exist_ok=True)
     sprites = {
         "pod": pod(), "device": device(), "op_board": op_board(),
         "fabber": fabber(), "psycho": psycho(), "comm": comm(),
         "debrief": debrief(), "stack": stack(), "relay": relay(),
         "researcher": researcher(), "archive": archive(), "specimen": specimen(),
+        "generator": generator(), "vault": vault(), "core": core(),
+        "elevator": elevator(), "vent": vent(), "bulkhead": bulkhead(),
     }
     for name, c in sprites.items():
         write_png(os.path.join(out, f"{name}.png"), c)
-    print("done:", ", ".join(sprites))
+    hunter_dir = os.path.join(base, "hunter")
+    os.makedirs(hunter_dir, exist_ok=True)
+    for f in (0, 1):
+        write_png(os.path.join(hunter_dir, f"{f}.png"), hunter(f))
+    print("done:", ", ".join(sprites), "+ hunter x2")
 
 
 if __name__ == "__main__":

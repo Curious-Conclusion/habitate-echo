@@ -1,0 +1,431 @@
+[gd_scene format=3 uid="uid://c9halcyon8echo04"]
+
+[ext_resource type="Script" path="res://scripts/op_halcyon.gd" id="1_hal"]
+[ext_resource type="PackedScene" uid="uid://bu0dbnxtsapat" path="res://scenes/player.tscn" id="2_player"]
+[ext_resource type="Script" uid="uid://dqtpu2j3c1dtb" path="res://scripts/morph_select_ui.gd" id="3_morphsel"]
+[ext_resource type="PackedScene" uid="uid://cbnlybvhbndct" path="res://scenes/resleeving_pod.tscn" id="4_pod"]
+[ext_resource type="Script" uid="uid://d0uu8mquc3pt6" path="res://scripts/resleeve_transition.gd" id="5_trans"]
+[ext_resource type="PackedScene" uid="uid://ijn40a24ls27" path="res://scenes/dialogue_box.tscn" id="6_dlg"]
+[ext_resource type="PackedScene" uid="uid://b0kd1kpl7l2sq" path="res://scenes/interactable.tscn" id="7_int"]
+[ext_resource type="Script" uid="uid://bbpmvcgravlpo" path="res://scripts/hp_bar.gd" id="8_hp"]
+[ext_resource type="Script" uid="uid://b2pwogun2gsue" path="res://scripts/moxie_bar.gd" id="9_moxie"]
+[ext_resource type="Script" uid="uid://cx0v4g35cj00s" path="res://scripts/glitch_overlay.gd" id="10_glitch"]
+[ext_resource type="Script" path="res://scripts/vacuum_zone.gd" id="11_vac"]
+[ext_resource type="PackedScene" uid="uid://c4fieldgear8echo" path="res://scenes/field_gear.tscn" id="12_gear"]
+[ext_resource type="PackedScene" uid="uid://c5whispers8echo" path="res://scenes/whispers.tscn" id="13_whisp"]
+[ext_resource type="PackedScene" uid="uid://c6objhud8echo" path="res://scenes/objective_hud.tscn" id="14_objhud"]
+[ext_resource type="PackedScene" uid="uid://c7hunter8echo" path="res://scenes/hunter.tscn" id="15_hunter"]
+[ext_resource type="PackedScene" uid="uid://c8bulkhead8echo" path="res://scenes/bulkhead.tscn" id="16_bh"]
+
+[sub_resource type="RectangleShape2D" id="RectOuterH"]
+size = Vector2(900, 8)
+
+[sub_resource type="RectangleShape2D" id="RectOuterV"]
+size = Vector2(8, 1568)
+
+[sub_resource type="RectangleShape2D" id="RectHull"]
+size = Vector2(900, 60)
+
+[sub_resource type="RectangleShape2D" id="RectDivider"]
+size = Vector2(8, 200)
+
+[sub_resource type="RectangleShape2D" id="RectVacHydro"]
+size = Vector2(380, 440)
+
+[sub_resource type="RectangleShape2D" id="RectFire1"]
+size = Vector2(180, 120)
+
+[sub_resource type="RectangleShape2D" id="RectFire2"]
+size = Vector2(120, 180)
+
+[node name="OpHalcyon" type="Node2D"]
+script = ExtResource("1_hal")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(450, 240)
+zoom = Vector2(1.5, 1.5)
+limit_left = 0
+limit_top = 0
+limit_right = 900
+limit_bottom = 1560
+
+[node name="Room" type="Node2D" parent="."]
+
+[node name="DockingA" type="ColorRect" parent="Room"]
+offset_right = 440.0
+offset_bottom = 480.0
+color = Color(0.16, 0.18, 0.24, 1)
+
+[node name="ConcourseA" type="ColorRect" parent="Room"]
+offset_left = 444.0
+offset_right = 900.0
+offset_bottom = 480.0
+color = Color(0.1, 0.12, 0.18, 1)
+
+[node name="HullAB" type="ColorRect" parent="Room"]
+offset_top = 480.0
+offset_right = 900.0
+offset_bottom = 540.0
+color = Color(0.04, 0.04, 0.06, 1)
+
+[node name="VaultWingB" type="ColorRect" parent="Room"]
+offset_top = 540.0
+offset_right = 440.0
+offset_bottom = 1020.0
+color = Color(0.13, 0.12, 0.2, 1)
+
+[node name="MedBayB" type="ColorRect" parent="Room"]
+offset_left = 444.0
+offset_top = 540.0
+offset_right = 900.0
+offset_bottom = 1020.0
+color = Color(0.16, 0.2, 0.2, 1)
+
+[node name="HullBC" type="ColorRect" parent="Room"]
+offset_top = 1020.0
+offset_right = 900.0
+offset_bottom = 1080.0
+color = Color(0.04, 0.04, 0.06, 1)
+
+[node name="HydroC" type="ColorRect" parent="Room"]
+offset_top = 1080.0
+offset_right = 440.0
+offset_bottom = 1560.0
+color = Color(0.1, 0.16, 0.12, 1)
+
+[node name="ReactorC" type="ColorRect" parent="Room"]
+offset_left = 444.0
+offset_top = 1080.0
+offset_right = 900.0
+offset_bottom = 1560.0
+color = Color(0.2, 0.12, 0.1, 1)
+
+[node name="BlackoutA" type="ColorRect" parent="Room"]
+offset_left = 444.0
+offset_right = 900.0
+offset_bottom = 480.0
+color = Color(0, 0, 0, 0.55)
+
+[node name="OuterTop" type="StaticBody2D" parent="."]
+position = Vector2(450, -4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="OuterTop"]
+shape = SubResource("RectOuterH")
+
+[node name="OuterBottom" type="StaticBody2D" parent="."]
+position = Vector2(450, 1564)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="OuterBottom"]
+shape = SubResource("RectOuterH")
+
+[node name="OuterLeft" type="StaticBody2D" parent="."]
+position = Vector2(-4, 780)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="OuterLeft"]
+shape = SubResource("RectOuterV")
+
+[node name="OuterRight" type="StaticBody2D" parent="."]
+position = Vector2(904, 780)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="OuterRight"]
+shape = SubResource("RectOuterV")
+
+[node name="HullWallAB" type="StaticBody2D" parent="."]
+position = Vector2(450, 510)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HullWallAB"]
+shape = SubResource("RectHull")
+
+[node name="HullWallBC" type="StaticBody2D" parent="."]
+position = Vector2(450, 1050)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HullWallBC"]
+shape = SubResource("RectHull")
+
+[node name="DividerA1" type="StaticBody2D" parent="."]
+position = Vector2(442, 100)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DividerA1"]
+shape = SubResource("RectDivider")
+
+[node name="DividerA2" type="StaticBody2D" parent="."]
+position = Vector2(442, 380)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DividerA2"]
+shape = SubResource("RectDivider")
+
+[node name="DividerB1" type="StaticBody2D" parent="."]
+position = Vector2(442, 640)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DividerB1"]
+shape = SubResource("RectDivider")
+
+[node name="DividerB2" type="StaticBody2D" parent="."]
+position = Vector2(442, 920)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DividerB2"]
+shape = SubResource("RectDivider")
+
+[node name="DividerC1" type="StaticBody2D" parent="."]
+position = Vector2(442, 1180)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DividerC1"]
+shape = SubResource("RectDivider")
+
+[node name="DividerC2" type="StaticBody2D" parent="."]
+position = Vector2(442, 1460)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DividerC2"]
+shape = SubResource("RectDivider")
+
+[node name="VacuumZone" type="Area2D" parent="."]
+position = Vector2(200, 1330)
+monitorable = false
+script = ExtResource("11_vac")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="VacuumZone"]
+shape = SubResource("RectVacHydro")
+
+[node name="FireZone1" type="Area2D" parent="."]
+position = Vector2(600, 1430)
+monitorable = false
+script = ExtResource("11_vac")
+damage = 10
+moxie_drain = 2
+tick_interval = 0.5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FireZone1"]
+shape = SubResource("RectFire1")
+
+[node name="FireZone2" type="Area2D" parent="."]
+position = Vector2(820, 1300)
+monitorable = false
+script = ExtResource("11_vac")
+damage = 10
+moxie_drain = 2
+tick_interval = 0.5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FireZone2"]
+shape = SubResource("RectFire2")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="ZoneLabel" type="Label" parent="UI"]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 280.0
+offset_bottom = 33.0
+text = "Halcyon Station"
+
+[node name="HpBar" type="ProgressBar" parent="UI"]
+offset_left = 480.0
+offset_top = 10.0
+offset_right = 630.0
+offset_bottom = 24.0
+value = 100.0
+show_percentage = false
+script = ExtResource("8_hp")
+
+[node name="MoxieBar" type="ProgressBar" parent="UI"]
+offset_left = 480.0
+offset_top = 28.0
+offset_right = 630.0
+offset_bottom = 42.0
+value = 100.0
+show_percentage = false
+script = ExtResource("9_moxie")
+
+[node name="MoxieFlavor" type="Label" parent="UI"]
+offset_left = 330.0
+offset_top = 46.0
+offset_right = 630.0
+offset_bottom = 66.0
+horizontal_alignment = 2
+
+[node name="BurnHint" type="Label" parent="UI"]
+offset_left = 300.0
+offset_top = 68.0
+offset_right = 630.0
+offset_bottom = 86.0
+text = "[F] Moxie Burn  (30)   ·   [G] Gear"
+horizontal_alignment = 2
+
+[node name="MorphSelectUI" type="PanelContainer" parent="UI"]
+process_mode = 3
+offset_left = 200.0
+offset_top = 100.0
+offset_right = 520.0
+offset_bottom = 300.0
+script = ExtResource("3_morphsel")
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/MorphSelectUI"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/MorphSelectUI/MarginContainer"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="UI/MorphSelectUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "— Resleeving Pod —"
+horizontal_alignment = 1
+
+[node name="ButtonBox" type="VBoxContainer" parent="UI/MorphSelectUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Player" parent="." groups=["player"] instance=ExtResource("2_player")]
+position = Vector2(100, 120)
+
+[node name="PodA" parent="." instance=ExtResource("4_pod")]
+position = Vector2(260, 110)
+
+[node name="PodB" parent="." instance=ExtResource("4_pod")]
+position = Vector2(700, 640)
+
+[node name="PodC" parent="." instance=ExtResource("4_pod")]
+position = Vector2(560, 1160)
+
+[node name="TransitionLayer" type="CanvasLayer" parent="."]
+process_mode = 3
+layer = 100
+script = ExtResource("5_trans")
+
+[node name="FadeOverlay" type="ColorRect" parent="TransitionLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="FlavorLabel" type="Label" parent="TransitionLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SfxPlayer" type="AudioStreamPlayer" parent="TransitionLayer"]
+process_mode = 3
+
+[node name="DialogueBox" parent="." instance=ExtResource("6_dlg")]
+
+[node name="GlitchLayer" type="CanvasLayer" parent="."]
+layer = 50
+script = ExtResource("10_glitch")
+
+[node name="Rect" type="ColorRect" parent="GlitchLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.55, 0, 0.12, 0)
+
+[node name="BriefSlate" parent="." instance=ExtResource("7_int")]
+position = Vector2(100, 60)
+prompt_text = "[E] Arrival Manifest"
+visual_color = Color(0.3, 0.7, 0.3, 1)
+sprite_path = "res://art/objects/datapad.png"
+
+[node name="EgocastRelay" parent="." instance=ExtResource("7_int")]
+position = Vector2(90, 380)
+prompt_text = "[E] Egocast Relay"
+visual_color = Color(0.2, 0.8, 0.9, 1)
+sprite_path = "res://art/objects/relay.png"
+
+[node name="BridgeLog" parent="." instance=ExtResource("7_int")]
+position = Vector2(840, 80)
+prompt_text = "[E] Bridge Log"
+visual_color = Color(0.2, 0.8, 0.9, 1)
+sprite_path = "res://art/objects/terminal.png"
+
+[node name="ElevatorA" parent="." instance=ExtResource("7_int")]
+position = Vector2(640, 240)
+prompt_text = "[E] Elevator"
+visual_color = Color(0.5, 0.5, 0.55, 1)
+sprite_path = "res://art/objects/elevator.png"
+
+[node name="VentA" parent="." instance=ExtResource("7_int")]
+position = Vector2(860, 420)
+prompt_text = "[E] Crawlway Vent"
+visual_color = Color(0.4, 0.42, 0.47, 1)
+sprite_path = "res://art/objects/vent.png"
+
+[node name="Vault" parent="." instance=ExtResource("7_int")]
+position = Vector2(110, 640)
+prompt_text = "[E] Data Vault"
+visual_color = Color(0.5, 0.55, 0.65, 1)
+sprite_path = "res://art/objects/vault.png"
+
+[node name="CrewBunks" parent="." instance=ExtResource("7_int")]
+position = Vector2(260, 900)
+prompt_text = "[E] Crew Quarters"
+visual_color = Color(0.6, 0.55, 0.4, 1)
+sprite_path = "res://art/objects/locker.png"
+
+[node name="Autodoc" parent="." instance=ExtResource("7_int")]
+position = Vector2(840, 660)
+prompt_text = "[E] Med Autodoc"
+visual_color = Color(0.2, 0.8, 0.53, 1)
+sprite_path = "res://art/objects/autodoc.png"
+
+[node name="ElevatorB" parent="." instance=ExtResource("7_int")]
+position = Vector2(640, 780)
+prompt_text = "[E] Elevator"
+visual_color = Color(0.5, 0.5, 0.55, 1)
+sprite_path = "res://art/objects/elevator.png"
+
+[node name="VentB" parent="." instance=ExtResource("7_int")]
+position = Vector2(860, 960)
+prompt_text = "[E] Crawlway Vent"
+visual_color = Color(0.4, 0.42, 0.47, 1)
+sprite_path = "res://art/objects/vent.png"
+
+[node name="HydroTank" parent="." instance=ExtResource("7_int")]
+position = Vector2(150, 1200)
+prompt_text = "[E] Hydroponics Rack"
+visual_color = Color(0.4, 0.7, 0.5, 1)
+sprite_path = "res://art/objects/specimen.png"
+
+[node name="HydroCache" parent="." instance=ExtResource("7_int")]
+position = Vector2(110, 1430)
+prompt_text = "[E] Emergency Cache"
+visual_color = Color(0.9, 0.8, 0.2, 1)
+sprite_path = "res://art/objects/locker.png"
+
+[node name="Generator" parent="." instance=ExtResource("7_int")]
+position = Vector2(700, 1180)
+prompt_text = "[E] Backup Generator"
+visual_color = Color(0.85, 0.65, 0.2, 1)
+sprite_path = "res://art/objects/generator.png"
+
+[node name="ElevatorC" parent="." instance=ExtResource("7_int")]
+position = Vector2(640, 1300)
+prompt_text = "[E] Elevator"
+visual_color = Color(0.5, 0.5, 0.55, 1)
+sprite_path = "res://art/objects/elevator.png"
+
+[node name="Core" parent="." instance=ExtResource("7_int")]
+position = Vector2(760, 1440)
+prompt_text = "[E] Containment Core"
+visual_color = Color(0.65, 0.35, 0.75, 1)
+sprite_path = "res://art/objects/core.png"
+
+[node name="VentC" parent="." instance=ExtResource("7_int")]
+position = Vector2(860, 1500)
+prompt_text = "[E] Crawlway Vent"
+visual_color = Color(0.4, 0.42, 0.47, 1)
+sprite_path = "res://art/objects/vent.png"
+
+[node name="BulkheadB" parent="." instance=ExtResource("16_bh")]
+position = Vector2(442, 780)
+
+[node name="BulkheadC" parent="." instance=ExtResource("16_bh")]
+position = Vector2(442, 1320)
+
+[node name="Hunter" parent="." instance=ExtResource("15_hunter")]
+position = Vector2(700, 900)
+
+[node name="FieldGear" parent="." instance=ExtResource("12_gear")]
+
+[node name="Whispers" parent="." instance=ExtResource("13_whisp")]
+
+[node name="ObjectiveHud" parent="." instance=ExtResource("14_objhud")]

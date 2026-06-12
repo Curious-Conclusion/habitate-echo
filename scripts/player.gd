@@ -25,6 +25,15 @@ const DERANGE_THRESHOLD := 35  ## below this, low-Moxie derangement sets in
 func _ready() -> void:
 	_apply_morph(MorphManager.get_current_morph())
 	MorphManager.morph_changed.connect(_on_morph_changed)
+	GameState.trauma_changed.connect(_apply_trauma_weight)
+	_apply_trauma_weight(GameState.traumas)
+
+## Carried traumas weigh on the ego: each one caps max Moxie by 10 until
+## psychosurgery cuts it out. This is what culling actually costs.
+func _apply_trauma_weight(traumas: Array) -> void:
+	max_moxie = 100 - 10 * traumas.size()
+	current_moxie = mini(current_moxie, max_moxie)
+	moxie_changed.emit(current_moxie, max_moxie)
 
 func _physics_process(_delta: float) -> void:
 	if is_dead:
@@ -132,20 +141,25 @@ func _burn_scramble() -> void:
 	speed_mult = 2.0
 	invulnerable = true
 	sprite.modulate = Color(0.6, 1.0, 0.85)
-	await get_tree().create_timer(3.0).timeout
+	await get_tree().create_timer(3.0, false).timeout  # freezes with the tree
 	speed_mult = 1.0
 	invulnerable = false
 	sprite.modulate = Color.WHITE
 
-## Synth: EMP discharge — disperse every nanite swarm on the station.
+## Synth: EMP discharge — disperse nanite swarms, stagger anything bigger.
 func _burn_emp() -> void:
 	var swarms := get_tree().get_nodes_in_group("nanite_swarm")
 	for s in swarms:
 		s.queue_free()
-	if swarms.is_empty():
+	var hunters := get_tree().get_nodes_in_group("hunter")
+	for h in hunters:
+		h.stun(4.0)
+	if swarms.is_empty() and hunters.is_empty():
 		moxie_flavor.emit("EMP discharge — nothing to disperse.")
-	else:
+	elif hunters.is_empty():
 		moxie_flavor.emit("EMP discharge — the swarm scatters into static.")
+	else:
+		moxie_flavor.emit("EMP discharge — for four merciful seconds, it stops.")
 
 ## Biomorph: medichine surge — flush damage and restore the flesh.
 func _burn_medichine() -> void:

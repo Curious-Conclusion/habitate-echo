@@ -76,5 +76,7 @@ func _apply_effect(fx: String) -> void:
 		"emp":
 			for s in get_tree().get_nodes_in_group("nanite_swarm"):
 				s.queue_free()
+			for h in get_tree().get_nodes_in_group("hunter"):
+				h.stun(4.0)
 		"extract":
 			SceneFlow.go_to_hub()

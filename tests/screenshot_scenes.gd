@@ -10,6 +10,7 @@ const SHOTS := [
 	["op_ke7", "res://scenes/main.tscn"],
 	["op_hauler", "res://scenes/op_hauler.tscn"],
 	["op_lab", "res://scenes/op_lab.tscn"],
+	["op_halcyon", "res://scenes/op_halcyon.tscn"],
 ]
 
 func _initialize() -> void:

@@ -70,7 +70,7 @@ func _on_crew_npc() -> void:
 	GameState.set_flag(&"npc_talked")
 	dialogue_box.show_lines_with_choices(
 		[
-			"A sleeved crew member is wedged into the corner, shaking.",
+			"A crew member in a scuffed case morph is wedged into the corner, shaking.",
 			"\"Stay back! Are you one of them? One of the infected?\"",
 		],
 		[
@@ -145,7 +145,7 @@ func _on_maintenance_hatch() -> void:
 		dialogue_box.show_lines([
 			"A narrow maintenance hatch is wedged behind the server racks.",
 			"The crawlspace beyond is too tight for this morph to navigate.",
-			"Try resleeving into the Octomorph at the Med Bay pod.",
+			"Resleeve into the octomorph at the Med Bay pod.",
 		])
 		return
 	MissionManager.complete_objective(&"retrieve_stack")
@@ -161,9 +161,9 @@ func _on_terminal() -> void:
 	var morph := MorphManager.get_current_morph()
 	if morph.ability != MorphManager.Ability.CYBERBRAIN:
 		dialogue_box.show_lines([
-			"This terminal requires a cyberbrain interface.",
-			"Your current morph can't access it.",
-			"Try resleeving into the Biomorph at the Med Bay pod.",
+			"This terminal wants a direct cyberbrain handshake.",
+			"This morph's wetware has nothing to plug in.",
+			"Resleeve into the worker pod at the Med Bay pod station.",
 		])
 		return
 	if not MissionManager.is_complete(&"retrieve_stack"):
@@ -191,8 +191,8 @@ func _on_terminal_choice(index: int) -> void:
 		MissionManager.complete_objective(&"scan_stack")
 		dialogue_box.show_lines([
 			"You enter the crew override: 77-ALEPH.",
-			"The async's lockout folds open without a fight.",
-			"The scan reveals an async infection buried in the ego backup.",
+			"The lockout folds open without a fight.",
+			"The scan reveals an exsurgent strain coiled through the ego backup.",
 			"The signal must be vented before it reaches the mesh.",
 			"Objective complete: Stack scanned.",
 		])
@@ -202,8 +202,8 @@ func _on_terminal_choice(index: int) -> void:
 func _on_hack_succeeded() -> void:
 	MissionManager.complete_objective(&"scan_stack")
 	dialogue_box.show_lines([
-		"You trace the lockout route and crack the async's defences.",
-		"The scan reveals an async infection buried in the ego backup.",
+		"You trace the lockout route and crack the defences.",
+		"The scan reveals an exsurgent strain coiled through the ego backup.",
 		"The signal must be vented before it reaches the mesh.",
 		"Objective complete: Stack scanned.",
 	])
@@ -211,8 +211,9 @@ func _on_hack_succeeded() -> void:
 func _on_hack_failed() -> void:
 	player.reduce_moxie(15)
 	dialogue_box.show_lines([
-		"INTRUSION DETECTED. The async lashes back through the mesh.",
-		"The feedback sears your mind — and it's summoning defenders.",
+		"INTRUSION DETECTED. The infected system lashes back through the mesh.",
+		"The feedback sears your mind. Somewhere behind the walls,",
+		"the station starts moving.",
 	])
 	await dialogue_box.dialogue_finished
 	_spawn_nanite_swarm()
@@ -224,8 +225,8 @@ func _on_airlock() -> void:
 	if morph.ability != MorphManager.Ability.VACUUM_SEAL:
 		dialogue_box.show_lines([
 			"The airlock requires vacuum-sealed hardware to operate.",
-			"Your current morph would not survive depressurisation.",
-			"Try resleeving into the Synth at the Med Bay pod.",
+			"This morph would not survive depressurization.",
+			"Resleeve into the synth at the Med Bay pod.",
 		])
 		return
 	if not MissionManager.is_complete(&"scan_stack"):
@@ -235,13 +236,14 @@ func _on_airlock() -> void:
 		])
 		return
 	if MissionManager.is_complete(&"vent_signal"):
-		dialogue_box.show_lines(["The async signal has already been vented."])
+		dialogue_box.show_lines(["The exsurgent signal has already been vented."])
 		return
 	MissionManager.complete_objective(&"vent_signal")
 	dialogue_box.show_lines([
-		"You cycle the airlock and vent the async signal into vacuum.",
-		"The corrupted data stream disperses harmlessly into space.",
-		"Objective complete: Async signal neutralised.",
+		"You slave the corrupted backup to the airlock array and cycle it.",
+		"The stack tumbles out with the air — transmitter dead,",
+		"the signal starving in the dark.",
+		"Objective complete: exsurgent signal silenced.",
 	])
 
 # -- Lore Terminal (Lounge, multiple choice) --
@@ -258,7 +260,7 @@ func _on_lore_choice(index: int) -> void:
 		0:
 			dialogue_box.show_lines([
 				"MANIFEST: Orbital hab module KE-7.",
-				"Crew complement: 4 (currently: 1 active, 3 sleeved).",
+				"Crew complement: 4 (1 embodied, 3 in ego storage).",
 				"Last inspection: 14 days ago.",
 			])
 		1:
@@ -275,8 +277,9 @@ func _on_resleeve_moxie(_morph_id: StringName) -> void:
 
 func _on_device_scanned() -> void:
 	dialogue_box.show_lines([
-		"Scan complete. The device is emitting an unknown signal.",
-		"Warning: nanite swarm detected — hostile entity emerging!",
+		"Scan complete. The device is transmitting — short bursts,",
+		"patterned, patient.",
+		"The dust on the floor begins to move.",
 	])
 	await dialogue_box.dialogue_finished
 	_spawn_nanite_swarm()

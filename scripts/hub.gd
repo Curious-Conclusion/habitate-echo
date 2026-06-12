@@ -111,23 +111,33 @@ func _on_quartermaster_choice(index: int) -> void:
 		"Credits remaining: %d." % GameState.credits,
 	])
 
-# -- Psychosurgery: restore Moxie, clear sticky trauma --
+# -- Psychosurgery: restore Moxie, clear sticky trauma. Not free: ego repair
+# -- is skilled work, and the bill is how the cull choice keeps its weight. --
+
+const PSYCHOSURGERY_COST := 25
 
 func _on_psychosurgery() -> void:
 	var has_trauma := not GameState.traumas.is_empty()
-	var needs_moxie := GameState.moxie < GameState.MAX_MOXIE
+	var weighted_max := GameState.MAX_MOXIE - 10 * GameState.traumas.size()
+	var needs_moxie := GameState.moxie < weighted_max
 	if not has_trauma and not needs_moxie:
 		dialogue_box.show_lines(["The psychosurgery suite scans your ego. \"You're stable. Nothing to mend.\""])
 		return
-	player.restore_moxie(GameState.MAX_MOXIE)  # mirrors into GameState via signal
+	# Pay what you can — Firewall doesn't leave sentinels broken, just indebted.
+	var cost := mini(PSYCHOSURGERY_COST, GameState.credits)
+	GameState.credits -= cost
+	GameState.credits_changed.emit(GameState.credits)
 	var cleared := ""
 	if has_trauma:
 		var t: StringName = GameState.traumas[0]
 		GameState.clear_trauma(t)
-		cleared = "\nThe suite excises a lingering derangement (%s)." % String(t)
+		cleared = "\nThe suite excises a lingering trauma (%s)." % String(t)
+	player.restore_moxie(GameState.MAX_MOXIE)  # mirrors into GameState via signal
 	dialogue_box.show_lines([
-		"You sink into the psychosurgery cradle. Medichines flood your cortex.",
+		"You sink into the cradle. The suite spins up a slow-time simulspace",
+		"and unpicks the knot, one thread at a time. You don't ask how long.",
 		"Your Moxie is restored." + cleared,
+		"Billed: %d cr." % cost if cost > 0 else "Billed to your marker. Firewall remembers.",
 	])
 
 # -- Handler & contacts --
@@ -135,7 +145,7 @@ func _on_psychosurgery() -> void:
 func _on_handler() -> void:
 	dialogue_box.show_lines_with_choices(
 		[
-			"Your proxy handler's icon resolves on the comm.",
+			"Your proxy's icon resolves on the comm.",
 			"\"Welcome back to the safehouse, sentinel. Still breathing — good.\"",
 		],
 		["\"What's the situation?\"", "\"Any new contracts?\"", "\"Just checking in.\""],
@@ -146,7 +156,7 @@ func _on_handler_choice(index: int) -> void:
 	match index:
 		0:
 			var lines: Array = [
-				"\"The mesh is thick with async chatter. We contain what we can.\"",
+				"\"The mesh is thick with exsurgent chatter. We contain what we can.\"",
 				"\"You're deniable. Off the books. That's the job.\"",
 			]
 			# The handler remembers what you did at Aphelion.
@@ -170,7 +180,7 @@ func _on_debrief() -> void:
 	var traumas := "none" if names.is_empty() else ", ".join(names)
 	dialogue_box.show_lines([
 		"— Debrief terminal —",
-		"Firewall standing: %d" % GameState.firewall_rep,
+		"Firewall standing (i-rep): %d" % GameState.firewall_rep,
 		"Credits: %d" % GameState.credits,
 		"Ops resolved: %d" % GameState.completed_ops.size(),
 		"Continuity breaks: %d" % GameState.continuity_breaks,

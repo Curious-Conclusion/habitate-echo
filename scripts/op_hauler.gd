@@ -66,7 +66,7 @@ func _on_cortical_stack() -> void:
 		dialogue_box.show_lines([
 			"Petrov's cortical stack sits in a cradle, rimed with frost, open to vacuum.",
 			"Bare flesh won't last out here — handling it needs a vacuum-sealed morph.",
-			"Resleeve into the Synth at the entry pod.",
+			"Resleeve into the synth at the entry pod.",
 		])
 		return
 	MissionManager.complete_objective(&"recover_ego")

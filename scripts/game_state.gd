@@ -54,10 +54,11 @@ func swarm_count() -> int:
 	return 2 if difficulty == Difficulty.RELENTLESS else 1
 
 ## Multiplier on Moxie damage from info-hazards and psychic backlash.
+## (STORY is softened, not anesthetized — the dread systems should still fire.)
 func hazard_moxie_mult() -> float:
 	match difficulty:
 		Difficulty.STORY:
-			return 0.5
+			return 0.75
 		Difficulty.RELENTLESS:
 			return 1.5
 		_:
@@ -88,12 +89,16 @@ func clear_trauma(trauma_id: StringName) -> void:
 # Op progress / flags
 # ---------------------------------------------------------------------------
 
-func complete_op(op_id: StringName) -> void:
+## reward_override >= 0 replaces the op's listed payout (e.g. Firewall docks
+## the bounty when you come home empty-handed). Replays pay a flat salvage 15.
+func complete_op(op_id: StringName, reward_override: int = -1) -> void:
 	if not completed_ops.has(op_id):
 		completed_ops.append(op_id)
 		var op: Op = OpCatalog.get_op(op_id)
 		if op:
-			award_credits(op.reward_credits)
+			award_credits(reward_override if reward_override >= 0 else op.reward_credits)
+	else:
+		award_credits(15)  # replay salvage — the economy can't zero out forever
 
 # ---------------------------------------------------------------------------
 # Economy / gear
@@ -112,6 +117,14 @@ func buy_gear(gear_id: StringName, cost: int) -> bool:
 	credits -= cost
 	gear.append(gear_id)
 	credits_changed.emit(credits)
+	gear_changed.emit(gear)
+	return true
+
+## Grant a gear item for free (field caches, rewards). False if slots are full.
+func grant_gear(gear_id: StringName) -> bool:
+	if gear.size() >= MAX_GEAR_SLOTS:
+		return false
+	gear.append(gear_id)
 	gear_changed.emit(gear)
 	return true
 
@@ -151,11 +164,16 @@ func fork_from_checkpoint() -> void:
 		var keep_morphs := unlocked_morphs.duplicate()
 		var keep_gear := gear.duplicate()
 		var keep_intel := intel.duplicate()
+		var keep_flags := op_flags.duplicate(true)
 		_deserialize(_checkpoint)
 		# Mechanical progress survives the fork even if it post-dates the checkpoint.
 		unlocked_morphs = keep_morphs
 		gear = keep_gear
 		intel = keep_intel
+		# One-shot pickups stay taken (you kept the gear, so the cache stays empty).
+		for k in keep_flags:
+			if String(k).ends_with("_taken"):
+				op_flags[k] = keep_flags[k]
 	continuity_breaks += 1
 	add_trauma(&"fork_dissonance")
 	set_moxie(MAX_MOXIE)

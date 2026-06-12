@@ -1,0 +1,30 @@
+[gd_scene load_steps=4 format=3 uid="uid://c7hunter8echo"]
+
+[ext_resource type="Script" path="res://scripts/hunter.gd" id="1_hunter"]
+
+[sub_resource type="CapsuleShape2D" id="HunterBody"]
+radius = 9.0
+height = 24.0
+
+[sub_resource type="CircleShape2D" id="HunterReach"]
+radius = 16.0
+
+[node name="Hunter" type="CharacterBody2D"]
+script = ExtResource("1_hunter")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+rotation = 1.5708
+shape = SubResource("HunterBody")
+
+[node name="DamageZone" type="Area2D" parent="."]
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DamageZone"]
+shape = SubResource("HunterReach")
+
+[node name="SightRay" type="RayCast2D" parent="."]
+enabled = false
+
+[node name="Heartbeat" type="AudioStreamPlayer2D" parent="."]

@@ -42,8 +42,11 @@ func _register_morphs() -> void:
 		&"synth", "Synth", 120.0, 150, Ability.VACUUM_SEAL,
 		Color(0.55, 0.55, 0.6),
 	))
+	# EP2e: cyberbrains live in synthmorphs and pods, not biomorphs — so the
+	# cyberbrain-carrying sleeve is a worker pod. (id stays &"biomorph" for
+	# save/scene compatibility; only the player-facing name changed.)
 	_add(MorphData.new(
-		&"biomorph", "Biomorph", 170.0, 100, Ability.CYBERBRAIN,
+		&"biomorph", "Worker Pod", 170.0, 100, Ability.CYBERBRAIN,
 		Color(0.8, 0.45, 0.25),
 	))
 

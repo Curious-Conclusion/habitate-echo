@@ -86,7 +86,7 @@ func _on_crawl_hatch() -> void:
 		dialogue_box.show_lines([
 			"A maintenance hatch behind the tank racks — somebody hid in there.",
 			"The crawlspace is far too tight for this morph.",
-			"An Octomorph could fold itself through.",
+			"An octomorph could fold itself through.",
 		])
 		return
 	GameState.set_flag(&"lab_note_found")
@@ -104,8 +104,8 @@ func _on_archive() -> void:
 	if morph.ability != MorphManager.Ability.CYBERBRAIN:
 		dialogue_box.show_lines([
 			"The archive crowns want a direct cyberbrain handshake.",
-			"This morph has nothing to offer them.",
-			"Resleeve into the Biomorph at the atrium pod.",
+			"This morph's wetware has nothing to offer them.",
+			"Resleeve into the worker pod at the atrium pod station.",
 		])
 		return
 	if MissionManager.is_complete(&"recover_protocol"):
@@ -276,8 +276,8 @@ func _on_player_died() -> void:
 	player.reduce_moxie(10)
 	if player.current_moxie <= 0:
 		dialogue_box.show_lines([
-			"The lab takes your morph — and the resleeve tears the thread loose.",
-			"Firewall restores you from an older backup. Something is missing, always.",
+			"The lab takes your morph — and the backup Firewall wakes is days",
+			"younger than the you who died. Something is missing, always.",
 		])
 		await dialogue_box.dialogue_finished
 		SceneFlow.ego_death_fork()
