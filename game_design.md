@@ -36,15 +36,17 @@ Boot scene is `scenes/title.tscn` (New Game / Continue / Quit).
 Switching happens at a resleeving pod (E → morph-select UI), costing 15 Moxie in
 the field; free at the hub's resleeving bay.
 
-| Morph     | Speed | HP  | Ability     | Field use                         |
-|-----------|-------|-----|-------------|-----------------------------------|
-| Octomorph | 150   | 80  | Wall-cling  | Reach tight/hidden spaces; fast   |
-| Synth     | 120   | 150 | Vacuum-seal | Survive vacuum/airlock sections   |
-| Biomorph  | 170   | 100 | Cyberbrain  | Hack / interface terminals        |
+| Morph      | Speed | HP  | Ability     | Field use                         |
+|------------|-------|-----|-------------|-----------------------------------|
+| Octomorph  | 150   | 80  | Wall-cling  | Reach tight/hidden spaces; fast   |
+| Synth      | 120   | 150 | Vacuum-seal | Survive vacuum/fire/cryo sections |
+| Worker Pod | 170   | 100 | Cyberbrain  | Hack / interface terminals        |
 
-Default starting morph: **Octomorph**. Each morph's **Moxie burn** (F, −30)
-differs: Octomorph scramble (2× speed + i-frames), Synth EMP (clears swarms),
-Biomorph medichine surge (full heal).
+Default starting morph: **octomorph**. Each morph's **Moxie burn** (F, −30)
+differs: octomorph scramble (2× speed + i-frames), synth EMP (clears swarms,
+staggers the hunter 4s), worker pod medichine surge (full heal). (The
+cyberbrain sleeve is a pod, not a biomorph — EP2e biomorphs run on wet
+neurons; internal id stays `biomorph` for save compatibility.)
 
 ## Controls (`project.godot`)
 
@@ -62,7 +64,9 @@ disposable). Below the derangement threshold (35) control slows and a red glitch
 wash flickers (`glitch_overlay.gd`). At Moxie 0 on death, ego death triggers the
 **lose-continuity fork**: restore an older backup (op restarts), keep mechanical
 progress (roster/gear/intel), gain a persistent **trauma** and a continuity
-break. Psychosurgery at the hub restores Moxie and clears trauma.
+break. **Each carried trauma caps max Moxie by 10** until psychosurgery (paid)
+cuts it out — culling Okafor, venting Halcyon, and dying all leave marks that
+cost something to remove.
 
 ## The hub (`scenes/hub.tscn`)
 
@@ -71,7 +75,8 @@ Six interactable stations:
 - **Op board** — pick an op → deploy (lists all `OpCatalog` ops, marks resolved).
 - **Resleeving bay** — set morph loadout (free, no stress cost).
 - **Quartermaster** — buy consumable gear with credits (slots: 4).
-- **Psychosurgery** — restore Moxie, clear one trauma.
+- **Psychosurgery** — restore Moxie, clear one trauma. **Costs 25 cr** (pay
+  what you have if broke) — the bill is how the cull choice keeps its weight.
 - **Handler** — branching dialogue / lore.
 - **Debrief terminal** — recap rep, credits, ops resolved, continuity breaks, trauma.
 
@@ -86,7 +91,9 @@ Consumables bought at the quartermaster (max 4 carried), used in the field with
 | EMP Charge      | 25   | Disperse all nanite swarms on the site   |
 | Panic Farcaster | 40   | Emergency egocast back to the safehouse  |
 
-Credits are awarded once per op on first completion (`Op.reward_credits`).
+Credits are awarded once per op on first completion (`Op.reward_credits`);
+replays pay a flat 15 cr salvage so the economy can't zero out. Psychosurgery
+(25 cr) is the recurring sink.
 
 ## Ops (sites)
 
@@ -126,6 +133,37 @@ first ethics fork:
 Either way the lab notices, and pressure rises for the walk back to the relay.
 The handler remembers your choice in later hub visits. Reward: 70 cr. Unlocks
 after the hauler.
+
+### Op 3 — Halcyon Station (`scenes/op_halcyon.tscn`, Act 2)
+
+Three stacked decks joined by a maintenance **spine**: crawlway vents
+(octomorph, silent) and an elevator (needs power, fast, **loud** — it tells the
+hunter where you went). Deck A: arrival, a blacked-out concourse, the egocast
+relay (dark until the end). Deck B: the info-hazard **vault** (cyberbrain,
+Moxie bleed), harvested crew quarters, an automed. Deck C: vacuum-breached
+hydroponics (with a medichine cache), fire-walled reactor, the backup
+generator (cyberbrain → lights up the station, wakes the elevator… and is
+heard), and the **containment core**.
+
+**The Skriker** (`hunter.gd`): an exsurgent that hunts the decks. It cannot be
+killed — only outrun, EMP-staggered (Synth burn or an EMP charge, 4s), or cut
+off behind **sealable bulkheads** (it leaves, and finds another way). You hear
+its **heartbeat** through the deck before you see it (distance-attenuated,
+quickens to 1.45× when it has you); being near it with line of sight bleeds
+Moxie. Speed 70/105/130 by difficulty.
+
+**The climax** (needs power + payload): three ways to end Halcyon —
+- **Vent the station**: +1 rep, but you read the manifest (Moxie toll now +
+  the sticky `hundred_names` trauma).
+- **Run Sava's counter-script**: works either way — but if you saved Okafor at
+  Aphelion, her pattern guides it (+2 rep, clean); without her it costs a heavy
+  Moxie spike and `network_exposed`.
+- **Burn the payload**: nobody else dies, but Firewall docks the bounty
+  (100 → 60 cr) and −1 rep.
+
+Then the relay lights, the Skriker goes **berserk** (faster, near-instant
+bulkhead patience, relocates toward you), and you run three decks home.
+Reward: 100 cr. Unlocks after the lab.
 
 ## Threats & dread
 

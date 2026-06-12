@@ -1,11 +1,11 @@
 # Site Layout — Halcyon Station (Act 2 escalation op)
 
-_Design artifact for the bigger multi-deck site in `DESIGN_OUTLINE.md §3 (Act 2)`:
-rising dread, environmental decay, a **hunter** exsurgent that stalks you, and a
-climactic containment decision that seeds the endings. Not yet built — this is the
-blueprint. Reuses all existing systems (morphs, Moxie, vacuum zones, swarms,
-dialogue, gear, the Op framework); adds three new pieces (the spine, the hunter,
-the containment decision)._
+_Design artifact for the bigger multi-deck site in `DESIGN_OUTLINE.md §3 (Act 2)`.
+**BUILT (2026-06-11)** as `scenes/op_halcyon.tscn` + `op_halcyon.gd` +
+`hunter.gd` + `bulkhead.gd` — the shipped op follows this blueprint with minor
+deviations (the climax needs power + the vault payload rather than a separate
+reach_core objective; the hunter is named the Skriker; deck rooms are two per
+deck). Kept as the design reference._
 
 ## Premise
 

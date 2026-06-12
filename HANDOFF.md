@@ -137,11 +137,46 @@ as objectives complete; trauma-only whispers at Moxie ~50 while carrying one.
 Note: invented uids in new .tscn files get rewritten by the editor on first
 import — expected churn, references resolve by path.
 
-**Next (roadmap in `DESIGN_OUTLINE.md §8`):** the info-hazard + ethics branch
-op (Act 1 Op 2); difficulty actually scaling threat pacing
-(`GameState.difficulty` exists but isn't read by ops yet); then the Act 2
-Halcyon site per `site_halcyon_layout.md` (needs `hunter.gd`, a generalized
-`hazard_zone.gd`, spine elevator/crawlway gating).
+**ACT 2 SHIPPED (2026-06-11): Halcyon Station + the Skriker.** Built per
+`site_halcyon_layout.md`: `op_halcyon.tscn/gd` (3 stacked decks, crawlway/
+elevator spine with quiet-vs-loud travel, blackout concourse that lifts on
+restore_power, info-hazard vault, fire/vacuum hazards via the generalized
+`vacuum_zone.gd` immune_ability export, sealable `bulkhead.tscn`, a 3-way
+containment climax that pays off the Okafor choice, berserk escape finale) and
+`hunter.gd/tscn` — the Skriker: PATROL/HUNT/CHASE/SEARCH/STUNNED, raycast LOS,
+last-seen tracking, distance-attenuated procedural **heartbeat** audio
+(quickens in CHASE), proximity Moxie dread, EMP stun (Synth burn + EMP charge),
+blocked-bulkhead relocation, difficulty-scaled (70/105/130; berserk ×1.35
+capped 165).
+
+**Three review agents were run over the build** (code correctness, EP2e
+fidelity + suspense prose, design/balance) and their findings applied:
+- Code: fixed hunter anchor ping-pong (could never patrol deck B), elevator-C
+  landing inside a fire zone, stun-tint/heartbeat-pitch bugs, berserk-during-
+  stun no-op, last-seen LOS leak, hazard phantom ticks on teleport
+  (overlaps_body guard + physics-tick), scramble timer now pauses with tree.
+- Balance: **psychosurgery costs 25 cr** (pay-what-you-have), **each trauma
+  caps max Moxie by −10** (the cull/vent costs are now real), replay ops pay
+  15 cr salvage, burn-the-payload docks Halcyon's bounty to 60, counter-script
+  30 base capped at 40, vent costs a Moxie toll, STORY mult 0.5→0.75, hunter
+  faster + dread 1/1.5s (2 on RELENTLESS), berserk relocates TOWARD the player
+  with 1.5s bulkhead patience (finale can't be teleport-cheesed), cache pickups
+  survive the ego-death fork (`*_taken` flags).
+- EP2e prose pass: async→exsurgent where canon demands (lab's usage was
+  correct and stays), the cyberbrain sleeve is now the **Worker Pod** (id
+  stays `biomorph`), slitheroid/automed/case-morph/i-rep vocabulary, KE-7's
+  tutorial-voice rewritten, "harmlessly" removed, suspense trims ("It has
+  noticed you", "like seeds", "and smiled" all cut/softened), debrief closers
+  de-templated. Strongest line per the editor: "One of your memories is new."
+
+**Suite now 90 checks, all green** (Halcyon flow, all three climax branches,
+Okafor payoff, hunter behaviors, difficulty tuning, economy changes).
+
+**Next:** a HUMAN playtest of Halcyon for feel (hunter pacing, heartbeat mix,
+finale tension — numbers are tuned by review, not by hands); then endings
+driven by rep + the flag constellation (researcher_saved/culled,
+halcyon_vented/counterscript/burned, network_exposed, continuity_breaks) —
+DESIGN_OUTLINE §8 phase 8; set dressing/audio polish.
 
 ---
 
@@ -274,6 +309,9 @@ scenes/
   main.tscn                    KE-7 op scene (= Op 0)
   op_hauler.tscn               Op 1 — derelict hauler (vacuum hold, extract point)
   op_lab.tscn                  Op 2 — Aphelion lab (info-hazard, ethics fork)
+  op_halcyon.tscn              Op 3 — Halcyon Station (Act 2: 3 decks, Skriker)
+  hunter.tscn                  the Skriker (instanced in op_halcyon)
+  bulkhead.tscn                sealable door (blocks the hunter, and you)
   hub.tscn                     the Firewall safehouse (6 stations)
   field_gear.tscn              [G] gear quick-use panel (instanced in op scenes)
   whispers.tscn                low-Moxie ambient dread lines (instanced in ops)
@@ -293,9 +331,12 @@ scripts/
   main.gd                      orchestrates KE-7; reads GameState/SceneFlow/OpCatalog
   op_hauler.gd                 orchestrates Op 1 (hauler); same patterns as main.gd
   op_lab.gd                    orchestrates Op 2 (lab): archive choice, Okafor fork
+  op_halcyon.gd                orchestrates Op 3: spine travel, climax, finale
+  hunter.gd                    the Skriker: states, LOS, heartbeat, dread, stun
+  bulkhead.gd                  sealable door toggle ([E], blocker StaticBody2D)
   whispers.gd                  deranged-state intrusive lines (timer + fade)
-  vacuum_zone.gd               breach hazard: drains HP/Moxie unless VACUUM_SEAL
-                               (exports tunable — the lab reuses it as a cryo leak)
+  vacuum_zone.gd               hazard volume: vacuum/cryo/fire via exports
+                               (immune_ability gates it; Synth shrugs off all)
   morph_manager.gd (autoload)  morph data + current_morph_id
   mission_manager.gd (autoload) objectives for current op (armed via start_op(Op))
   player.gd                    movement, Moxie/stress/burn, sprite loading
