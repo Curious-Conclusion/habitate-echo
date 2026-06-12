@@ -47,6 +47,7 @@ func _run() -> void:
 	await _test_halcyon_flow()
 	await _test_halcyon_branches()
 	await _test_endings()
+	await _test_pause_and_gear_keys()
 	_test_fork_and_difficulty()
 
 	print("")
@@ -519,6 +520,55 @@ func _test_endings() -> void:
 	_check(ending.get_node("Card") != null, "ending scene card present")
 	ending.free()
 	await process_frame
+
+## Inject REAL key events through the input pipeline — verifies key -> action
+## -> panel for the pause menu (Esc) and field gear (G), not just the logic.
+func _test_pause_and_gear_keys() -> void:
+	GS.reset_new_game()
+	var hub := (load("res://scenes/hub.tscn") as PackedScene).instantiate()
+	root.add_child(hub)
+	await process_frame
+	var pm: Node = hub.get_node("PauseMenu")
+
+	_press_key(KEY_ESCAPE)
+	await process_frame
+	_check(pm.get_node("Panel").visible and paused, "Esc opens the pause menu and freezes the tree")
+	_press_key(KEY_ESCAPE)
+	await process_frame
+	_check(not pm.get_node("Panel").visible and not paused, "Esc again resumes")
+	hub.free()
+	await process_frame
+
+	# And in an op: Esc pauses, G opens the gear panel (also key-driven).
+	var op := (load("res://scenes/main.tscn") as PackedScene).instantiate()
+	root.add_child(op)
+	await process_frame
+	_press_key(KEY_ESCAPE)
+	await process_frame
+	_check(op.get_node("PauseMenu/Panel").visible and paused, "Esc pauses inside an op")
+	_press_key(KEY_ESCAPE)
+	await process_frame
+	GS.gear.append(&"medichine")
+	_press_key(KEY_G)
+	await process_frame
+	_check(op.get_node("FieldGear/Panel").visible and paused, "G opens the field gear panel")
+	_press_key(KEY_G)
+	await process_frame
+	_check(not op.get_node("FieldGear/Panel").visible and not paused, "G again closes it")
+	op.free()
+	await process_frame
+
+func _press_key(keycode: Key) -> void:
+	var ev := InputEventKey.new()
+	ev.keycode = keycode
+	ev.physical_keycode = keycode
+	ev.pressed = true
+	Input.parse_input_event(ev)
+	var up := InputEventKey.new()
+	up.keycode = keycode
+	up.physical_keycode = keycode
+	up.pressed = false
+	Input.parse_input_event(up)
 
 func _test_fork_and_difficulty() -> void:
 	GS.reset_new_game()
